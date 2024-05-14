@@ -167,7 +167,7 @@ void	ServerManager::handle_request()
 				else if (request.getMethod() == "POST")
 					metodPost(_client[i], url, request);
 				else if (request.getMethod() == "DELETE")
-					metodDelete();
+					metodDelete(_client[i], url);
 				
 				/////
 				if (_client[i].getSock())
@@ -291,7 +291,7 @@ void	ServerManager::sendPage(std::string page, Client & client, int code)
 	}
 }
 
-bool	ServerManager::writePost(std::string path, Client client, std::string str)
+bool	ServerManager::writePost(std::string path, Client &client, std::string str)
 {
 	int	fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (fd < 0)
@@ -304,6 +304,29 @@ bool	ServerManager::writePost(std::string path, Client client, std::string str)
 	selectFd(&_read_set, &_write_set);
 
 	if (write(fd, str.c_str(), str.length()))
+	{
+		sendError(500, client);
+		close(fd);
+		return false;
+	}
+	close(fd);
+	return true;
+
+}
+
+bool	ServerManager::writePost(std::string path, Client &client, Request &request)
+{
+	int	fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0644);
+	if (fd < 0)
+	{
+		sendError(500, client);
+		return false;
+	}
+
+	addToSet(fd, &_write_set);
+	selectFd(&_read_set, &_write_set);
+
+	if (write(fd, request.getFullBody().c_str(), request.getFullBody().length()))
 	{
 		sendError(500, client);
 		close(fd);
@@ -380,8 +403,11 @@ void	ServerManager::metodGet(Client &client, std::string url)
 	close(fd);
 }
 
-void	ServerManager::metodPost(Client &client,  std::string url, Request &request)
+void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 {
+	//---
+	std::cout << "Post Method\n";
+	//---
 	if (request.getHeader()["Transfer-Encoding"] == "chunked")//
 	{
 		sendError(411, client);
@@ -429,25 +455,44 @@ void	ServerManager::metodPost(Client &client,  std::string url, Request &request
 					break;
 			}
 		}
+		else
+		{
+			sendError(400, client);//
+			return ;
+		}
 	}
 	else
 	{
 		std::cout << "POST IN FILE\n";//
+		if (!writePost(path, client, request));
+			return ;
 	}
 	if (request.getLen() == 0)
 		sendPage("", client, 204);
 	else
 		sendPage("", client, 201);
-	//---
-	std::cout << "Post Method\n";
-	//---
 }
 
-void	ServerManager::metodDelete()
+void	ServerManager::metodDelete(Client  &client, std::string url)
 {
 	//---
 	std::cout << "Delete Method\n";
 	//---
+	std::string	path = _server[client.getServ()].getRoot() + url;
+	std::ifstream	fd(path);
+	if (!fd)
+	{
+		sendError(404, client);
+		return ;
+	}
+	fd.close();
+	std::remove(path.c_str());
+
+	int	err = send(client.getSock(), "HTTP /1.1 200 OK\n", 18, 0);
+	if (err < 0)
+		sendError(400, client);
+	else if (err == 0)
+		sendError(500, client);	
 }
 
 

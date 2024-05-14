@@ -41,13 +41,13 @@ class ServerManager
 
 		void	metodGet( Client & client, std::string url );
 		void	metodPost( Client & client, std::string url, Request & request );
-		void	metodDelete();
+		void	metodDelete( Client & client, std::string url );
 
 		//Utils
 		void		sendError( int error, Client & client );
 		void		sendPage( std::string page, Client & client, int code );
-		bool		writePost(std::string path, Client client, std::string str);
-
+		bool		writePost(std::string path, Client & client, std::string str);
+		bool		writePost(std::string path, Client & client, Request & request);
 		std::string	findType( std::string page );
 		//---
 
