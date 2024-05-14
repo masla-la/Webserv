@@ -291,8 +291,26 @@ void	ServerManager::sendPage(std::string page, Client & client, int code)
 	}
 }
 
-bool	ServerManager::writePoll(std::string path, Client client, std::string str)
+bool	ServerManager::writePost(std::string path, Client client, std::string str)
 {
+	int	fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0644);
+	if (fd < 0)
+	{
+		sendError(500, client);
+		return false;
+	}
+
+	addToSet(fd, &_write_set);
+	selectFd(&_read_set, &_write_set);
+
+	if (write(fd, str.c_str(), str.length()))
+	{
+		sendError(500, client);
+		close(fd);
+		return false;
+	}
+	close(fd);
+	return true;
 
 }
 
@@ -404,7 +422,7 @@ void	ServerManager::metodPost(Client &client,  std::string url, Request &request
 
 				file = body.substr(start, end - start - 4);
 
-				if (!writePoll(url + "/" + name, client, file))
+				if (!writePost(url + "/" + name, client, file))
 					break;
 
 				if (body[end + request.getBoundary().size()] == '-')
