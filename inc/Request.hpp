@@ -16,6 +16,12 @@ class	Request
 
 		std::string	_query;
 
+		std::map<std::string, std::string>	_header;
+		std::string							_boundary;
+		std::string							_body;
+		std::string							_full_body;
+		size_t								_len;
+
 	public:
 
 		//Request( void );
@@ -31,15 +37,17 @@ class	Request
 		void		makePost( std::stringstream & strs );
 		int			checkProt( void );
 
-		//
-		size_t	getLen(){return 10;};//
-		//
-
 	//GETTERS
-		std::string		getRequest( void ){ return _request; };
-		std::string		getMethod( void ){ return _method; };
-		std::string		getUrl( void ){ return _url; };
-		std::string		getProtocol( void ){ return _protocol; };
+		std::string		getRequest( void );
+		std::string		getMethod( void );
+		std::string		getUrl( void );
+		std::string		getProtocol( void );
+		size_t	getLen( void );
+
+		std::string		getBoundary( void );
+		std::string		getBody( void );
+		std::string		getFullBody( void );
+		std::map<std::string, std::string>		getHeader( void );
 };
 
 #endif

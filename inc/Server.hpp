@@ -21,9 +21,9 @@ class	Server
 
 	public:
 
-		Server( void ){};
-		Server( const Server & obj ){*this = obj;};//
-		~Server( void ){};
+		Server( void );
+		Server( const Server & obj );//
+		~Server( void );
 		Server	&	operator=( const Server & obj );
 
 		//---

@@ -1,5 +1,23 @@
 #include "../inc/Server.hpp"
 
+Server::Server(void)
+{
+	_port = 8080;
+	_server_name = "Default";
+	_root = "./html";//
+	_index = "index.html";
+	_client_max_body_size = 1024;
+	_host = "0.0.0.0";
+}
+
+Server::Server(const Server & obj)//
+{
+	*this = obj;
+}
+
+Server::~Server(void)
+{}
+
 Server	&Server::operator=(Server const &obj)
 {
 	_socket = obj._socket;
@@ -137,7 +155,9 @@ void	Server::setRoot(std::string root, char **env)
 	if (!root.empty() && root[0] == '$')
 		_root = returnEnv(env, root);
 	if (root.empty())
-		_root = "default";//default root
+		_root = "./html";//default root
+	if (_root.find_last_of('/') == _root.size() - 1)
+		_root.erase(_root.size() - 1, _root.size());
 }
 
 void	Server::setErrorPages(std::string error_pages)
@@ -173,8 +193,10 @@ void	Server::setIndex(std::string index)
 void	Server::setMaxBody(size_t body_size)
 {
 	_client_max_body_size = body_size;
-		if (body_size == 0)
-			_client_max_body_size = 1000;//
+	if (body_size == 0)
+		_client_max_body_size = 1024;//
+	if (body_size > 2147483647)
+		_client_max_body_size  = 2147483647;
 }
 
 void	Server::setHost(std::string host)

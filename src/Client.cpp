@@ -3,7 +3,7 @@
 void	Client::init(size_t n)
 {
 	_server_n = n;
-	_time = 0;
+	_time = 0;//
 }
 
 void	Client::setLastReq(char *req)

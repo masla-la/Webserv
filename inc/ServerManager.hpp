@@ -39,13 +39,15 @@ class ServerManager
 		void	acceptClient( void );
 		void	handle_request( void );
 
-		void	metodGet(Client &client, std::string url);
-		void	metodPost();
+		void	metodGet( Client & client, std::string url );
+		void	metodPost( Client & client, std::string url, Request & request );
 		void	metodDelete();
 
 		//Utils
 		void		sendError( int error, Client & client );
 		void		sendPage( std::string page, Client & client, int code );
+		bool		writePoll(std::string path, Client client, std::string str);
+
 		std::string	findType( std::string page );
 		//---
 

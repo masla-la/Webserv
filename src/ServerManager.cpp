@@ -165,7 +165,7 @@ void	ServerManager::handle_request()
 				if (request.getMethod() == "GET")
 					metodGet(_client[i], url);
 				else if (request.getMethod() == "POST")
-					metodPost();
+					metodPost(_client[i], url, request);
 				else if (request.getMethod() == "DELETE")
 					metodDelete();
 				
@@ -182,7 +182,7 @@ void	ServerManager::handle_request()
 	}
 }	
 
-void ServerManager::sendError(int error, Client & client)
+void	ServerManager::sendError(int error, Client & client)
 {
     std::map<std::string, std::string> errorPages;
     int fd;
@@ -221,7 +221,7 @@ void ServerManager::sendError(int error, Client & client)
     }
 }
 
-void ServerManager::sendPage(std::string page, Client & client, int code)
+void	ServerManager::sendPage(std::string page, Client & client, int code)
 {
     std::cout << "Show Page: " << page << std::endl;
 
@@ -291,6 +291,11 @@ void ServerManager::sendPage(std::string page, Client & client, int code)
 	}
 }
 
+bool	ServerManager::writePoll(std::string path, Client client, std::string str)
+{
+
+}
+
 std::string	ServerManager::findType(std::string page)
 {
 	std::string	tmp = page;
@@ -329,7 +334,6 @@ void	ServerManager::metodGet(Client &client, std::string url)
 		return ;
 	}
 
-	//comprobar el '/' del root path
 	std::string	path = _server[client.getServ()].getRoot() + url;
 
 	//location
@@ -358,8 +362,64 @@ void	ServerManager::metodGet(Client &client, std::string url)
 	close(fd);
 }
 
-void	ServerManager::metodPost()
+void	ServerManager::metodPost(Client &client,  std::string url, Request &request)
 {
+	if (request.getHeader()["Transfer-Encoding"] == "chunked")//
+	{
+		sendError(411, client);
+		return  ;
+	}
+	std::string	path = _server[client.getServ()].getRoot() + url;
+	struct stat	stat_path;
+	lstat(path.c_str(), &stat_path);
+
+	if (S_ISDIR(stat_path.st_mode))
+	{
+		std::string	body = request.getFullBody();
+		std::string	file;
+	
+		if (!(request.getHeader().empty() && request.getBoundary().empty()))
+		{
+			std::cout << "Post in directory : " << std::endl;
+			size_t start = 0;
+			while (true)
+			{
+				start = body.find("name=\"", start);
+				if (start == std::string::npos)
+					break;
+				start += 6;
+				size_t end = body.find("\"", start);
+				if (end == std::string::npos)
+					break;
+				std::string name = body.substr(start, end - start);
+				std::cout << "+ " + name << std::endl;
+
+				start = body.find("\r\n\r\n", end);
+				if (start == std::string::npos)
+					break;
+				start += 4;
+				end = body.find(request.getBoundary(), start);
+				if (end == std::string::npos)
+					break;
+
+				file = body.substr(start, end - start - 4);
+
+				if (!writePoll(url + "/" + name, client, file))
+					break;
+
+				if (body[end + request.getBoundary().size()] == '-')
+					break;
+			}
+		}
+	}
+	else
+	{
+		std::cout << "POST IN FILE\n";//
+	}
+	if (request.getLen() == 0)
+		sendPage("", client, 204);
+	else
+		sendPage("", client, 201);
 	//---
 	std::cout << "Post Method\n";
 	//---

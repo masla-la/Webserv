@@ -9,7 +9,7 @@ class Client
 	private:
 
 		int				_socket;
-		size_t				_server_n;
+		size_t			_server_n;
 		unsigned int	_time;
 		std::string		_last_req;
 		
