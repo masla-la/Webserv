@@ -47,7 +47,6 @@ class ServerManager
 		void		sendError( int error, Client & client );
 		void		sendPage( std::string page, Client & client, int code );
 		bool		writePost(std::string path, Client & client, std::string str);
-		bool		writePost(std::string path, Client & client, Request & request);
 		std::string	findType( std::string page );
 		//---
 
