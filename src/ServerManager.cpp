@@ -2,10 +2,11 @@
 
 ServerManager::ServerManager(void)
 {
-	//Server	server;
-
-	//_server.push_back(server);
 	setErrors();
+	_default_error = "HTTP/1.1 404 Not Found\n";
+	_default_error += "Content-Type: text/plain\n";
+	_default_error += "Content-Length: 15\n\n";
+	_default_error += "404 Not Found\n";
 }
 
 ServerManager::ServerManager(const ServerManager &obj){}
@@ -25,9 +26,9 @@ int	ServerManager::InitServer(std::vector<Server> const & confServ)
 {
 	for (size_t i = 0; i < confServ.size(); i++)
 		_server.push_back(confServ[i]);
-//comprobar q error_pages funciona y se copia correctamente
 	for (size_t i = 0; i < _server.size(); i++)
-		_server[i].setupServer();
+		if (_server[i].setupServer())
+			_server.erase(_server.begin() + i);
 	return 0;
 }
 
@@ -187,24 +188,30 @@ void	ServerManager::sendError(int error, Client & client)
     std::map<std::string, std::string> errorPages;
     int fd;
 
-    errorPages = _server[client.getServ()].getErrorPages(); //
-    if (errorPages.find(std::to_string(error)) != errorPages.end()) //
+    errorPages = _server[client.getServ()].getErrorPages();
+    if (errorPages.find(std::to_string(error)) != errorPages.end())
     {
         fd = open(errorPages[std::to_string(error)].c_str(), O_RDONLY);
         if (fd < 0)
         {
             std::cout << "Error: Error pages failed" << std::endl;
-            // Si falla la apertura del archivo, no es necesario cerrarlo.
+			if (error == 404)
+				send(client.getSock(), _default_error.c_str(), _default_error.length(), 0);
+			else
+				sendError(404, client);
             return;
         }
-        close(fd); // Se debe cerrar el descriptor de archivo después de su uso.
+        close(fd);
         sendPage(errorPages[std::to_string(error)], client, 200);
     }
     else
     {
         if (!_errors[error].empty())
         {
-            int i;
+			//---
+			std::cout << "Error Page: " << _errors[error] << std::endl;
+            //---
+			int i;
             std::string msg = "HTTP/1.1 ";
             msg += _errors[error] + "\n";
             msg += "Content-Type: text/plain\n";
@@ -221,71 +228,71 @@ void	ServerManager::sendError(int error, Client & client)
     }
 }
 
-void	ServerManager::sendPage(std::string page, Client & client, int code)
+void	ServerManager::sendPage(std::string page, Client & client, int error)
 {
-    std::cout << "Show Page: " << page << std::endl;
+	std::cout << "Show Page: " << page << std::endl;
 
-    if (page.empty())
+	if (page.empty())
 	{
-        std::string msg = "HTTP/1.1 ";
-        msg += _errors[code];
-        msg += "\n\n";
-        size_t i;
-        if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0)
-            sendError(500, client);
-        return ;
-    }
+		std::string msg = "HTTP/1.1 ";
+		msg += _errors[error];
+		msg += "\n\n";
+		size_t i;
+		if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0)
+			sendError(500, client);
+		return ;
+	}
 	else
 	{
-        // Sección para enviar el contenido de la página
-        std::ifstream fd(page);
-        if (!fd.is_open())
+		// Sección para enviar el contenido de la página
+		std::ifstream fd(page);
+		if (!fd.is_open())
 		{
-            sendError(404, client);
-            return;
-        }
+			sendError(404, client);
+			return;
+		}
 
-        // Obtener el tamaño del archivo
-        fd.seekg(0, std::ios::end);
-        size_t size = fd.tellg();
-        fd.seekg(0, std::ios::beg);
+		// Obtener el tamaño del archivo
+		fd.seekg(0, std::ios::end);
+		size_t size = fd.tellg();
+		fd.seekg(0, std::ios::beg);
 
-        std::string type = findType(page);
+		std::string type = findType(page);
 
-        // Construir los encabezados de la respuesta HTTP
-        std::string msg = "HTTP/1.1 ";
-        msg += _errors[code];
-        msg += "\nContent-Type: ";
-        msg += type;
-        msg += "\nContent-Length: ";
-        msg += std::to_string(size);//
-        msg += "\n\n";
+		// Construir los encabezados de la respuesta HTTP
+		std::string msg = "HTTP/1.1 ";
+		msg += _errors[error];
+		msg += "\nContent-Type: ";
+		msg += type;
+		msg += "\nContent-Length: ";
+		msg += std::to_string(size);//
+		msg += "\n\n";
 
-        // Enviar los encabezados
-        size_t i;
-        if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0) {
-            sendError(500, client);
-            return;
-        }
+		// Enviar los encabezados
+		size_t i;
+		if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0) {
+			sendError(500, client);
+			return;
+		}
 
 		// Enviar el contenido del archivo
-        char buffer[1024];
+		char buffer[1024];
 		while (size > 0)
 		{
-    		int bytes_to_read = std::min(static_cast<size_t>(1024), size);
-    		fd.read(buffer, bytes_to_read);
-    		if (fd.eof() && fd.fail())
+			int bytes_to_read = std::min(static_cast<size_t>(1024), size);
+			fd.read(buffer, bytes_to_read);
+			if (fd.eof() && fd.fail())
 			{
-        		sendError(500, client);
-       			return;
-    		}
-    		size_t n;
-    		if ((n = send(client.getSock(), buffer, fd.gcount(), 0)) <= 0)
+				sendError(500, client);
+				return;
+			}
+			size_t n;
+			if ((n = send(client.getSock(), buffer, fd.gcount(), 0)) <= 0)
 			{
-        		sendError(500, client);
-        		return;
-    		}
-    		size -= n;
+				sendError(500, client);
+				return;
+			}
+			size -= n;
 		}
 		fd.close();
 	}

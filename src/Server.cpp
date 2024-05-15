@@ -66,7 +66,8 @@ int	Server::setupServer(void)
 		perror("Error: listen failed");
 		return 1;
 	}
-	//time
+	else
+		std::cout << _server_name  << " [" << _port << "] Listening..." << std::endl;
 	return 0;
 }
 

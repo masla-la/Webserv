@@ -20,6 +20,7 @@ class ServerManager
 		int								_last_fd;
 
 		std::map<int, std::string>		_errors;
+		std::string						_default_error;
 
 	public:
 
