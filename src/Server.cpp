@@ -4,7 +4,7 @@ Server::Server(void)
 {
 	_port = 8080;
 	_server_name = "Default";
-	_root = "./html";//
+	_root = "./html";
 	_index = "index.html";
 	_client_max_body_size = 1024;
 	_host = "0.0.0.0";
@@ -12,7 +12,7 @@ Server::Server(void)
 
 Server::Server(const Server & obj)//
 {
-	*this = obj;
+	*this = obj;//
 }
 
 Server::~Server(void)
@@ -30,7 +30,9 @@ Server	&Server::operator=(Server const &obj)
 	_index = obj._index;
 	_client_max_body_size = obj._client_max_body_size;
 	_host = obj._host;
-	
+
+	_location = obj._location;
+
 	return *this;
 }
 
@@ -119,6 +121,16 @@ std::string	Server::getHost(void)
 	return _host;
 }
 
+bool	Server::getListing(void)
+{
+	return _listing;
+}
+
+std::vector<Location>	Server::getLocation(void)
+{
+	return _location;
+}
+
 //SETTERS
 
 void	Server::setSock(int sock)
@@ -147,7 +159,6 @@ void	Server::setServerName(std::string name, char **env)
 		_server_name = "defaul";
 	if (!name.empty() && name[0] == '$')
 		_server_name = returnEnv(env, name);
-	//std::cout << "Server Name --> " << _server_name << std::endl;
 }
 
 void	Server::setRoot(std::string root, char **env)
@@ -156,7 +167,7 @@ void	Server::setRoot(std::string root, char **env)
 	if (!root.empty() && root[0] == '$')
 		_root = returnEnv(env, root);
 	if (root.empty())
-		_root = "./html";//default root
+		_root = "./html";
 	if (_root.find_last_of('/') == _root.size() - 1)
 		_root.erase(_root.size() - 1, _root.size());
 }
@@ -168,7 +179,6 @@ void	Server::setErrorPages(std::string error_pages)
 
 	std::stringstream strs(error_pages);
 	std::string num;
-	int			error;
 	std::string page;
 
 	while (strs >> num >> page)
@@ -181,14 +191,13 @@ void	Server::setErrorPages(std::string error_pages)
 		else
 			std::cerr << "Invalid input pair: " << num << " " << page << std::endl;
 	}
-	//separar el error de la pagina de error
 }
 
 void	Server::setIndex(std::string index)
 {
 	_index = index;
 	if (index.empty())
-		_index = "index.html";//
+		_index = "index.html";
 }
 
 void	Server::setMaxBody(size_t body_size)
@@ -205,4 +214,29 @@ void	Server::setHost(std::string host)
 	_host = host;
 	if (host.empty())
 		_host = "0.0.0.0";
+}
+
+void	Server::setMethod(std::string method)
+{
+	if (method != "GET" && method != "POST" && method != "DELETE")
+		throw MethodError();
+	_methods.push_back(method);
+}
+
+void	Server::setListing( std::string listing )
+{
+	if (!listing.empty() && (listing == "on" || listing == "off"))
+		{
+			if (listing == "on")
+				_listing = true;
+			else
+				_listing = false;
+		}
+	else
+		throw ListingError();
+}
+
+void	Server::setLocation(Location & loc)
+{
+	_location.push_back(loc);
 }

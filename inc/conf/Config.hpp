@@ -3,15 +3,18 @@
 
 # include "../webserv.hpp"
 # include "../Server.hpp"
+# include "../Location.hpp"
 
-class Server;
+class	Server;
+class	Location;
 
-class Config
+class	Config
 {
 	private:
 
 		std::vector<std::string>	_fd;
 		std::vector<Server>			_server;
+		//std::vector<Location>		_location;
 		std::vector<std::string>	_directives;
 
 	public:
@@ -22,7 +25,7 @@ class Config
 		void	readFd( std::string namefd );
 		void	checkConfig( char **env );
 		void	checkDirective( std::string line, std::string conf, Server & server, char **env );
-		void	parseLocation( std::vector<std::string> fd, Server server, char **env );
+		size_t	parseLocation( size_t n, std::string dir, Server server );
 
 		std::vector<Server>	getServ( void );
 

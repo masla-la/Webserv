@@ -2,6 +2,9 @@
 # define _SERVER_HPP_
 
 # include "webserv.hpp"
+# include "Location.hpp"
+
+class	Location;
 
 class	Server
 {
@@ -10,7 +13,7 @@ class	Server
 
 		int					_socket;
 		sockaddr_in			_addr;
-		int					_port;//
+		int					_port;
 
 		std::string									_server_name;
 		std::string									_root;
@@ -18,6 +21,10 @@ class	Server
 		std::string									_index;
 		size_t										_client_max_body_size;
 		std::string									_host;
+		std::vector<std::string>					_methods;
+		bool										_listing;
+
+		std::vector<Location>						_location;
 
 	public:
 
@@ -41,6 +48,8 @@ class	Server
 		std::string								getIndex( void );
 		size_t									getMaxBody( void );
 		std::string								getHost( void );
+		bool									getListing( void );
+		std::vector<Location>					getLocation( void );
 
 	//SETTERS
 		void		setSock( int sock );
@@ -53,6 +62,9 @@ class	Server
 		void		setIndex( std::string index );
 		void		setMaxBody( size_t body_size);
 		void		setHost( std::string host );
+		void		setMethod( std::string method );
+		void		setListing( std::string listing );
+		void		setLocation( Location & loc );
 
 };
 

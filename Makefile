@@ -1,7 +1,7 @@
 NAME = webserv
 
 FILES = webserv ServerManager Server Client Request \
-		conf/Config conf/parser_utils utils
+		conf/Config conf/parser_utils utils Location
 
 FILES_SRC = $(addprefix src/, $(FILES))
 
@@ -10,7 +10,7 @@ OBJ = $(addsuffix .o, $(FILES_SRC))
 
 
 CC = clang++
-CFLAGS = #-Wall -Werror -Werror -std=c++98
+CFLAGS = #-Wall -Werror -Wextra -std=c++98
 RM = rm -rf
 
 all: $(NAME)

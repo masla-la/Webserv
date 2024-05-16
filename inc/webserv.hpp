@@ -48,9 +48,21 @@ std::string	returnEnv( char **env, std::string line );
 //
 std::string	ft_size_to_str(size_t n);	
 //
+
+//EXECPTIONS
 class ArgError : public std::exception
-{ public:
-	virtual const char *what( void ) const throw()
-{ return "Error: Usage -> ./webserv {CONFIG_FILE}"; } };
+	{ public:
+		virtual const char *what( void ) const throw()
+	{ return "Error: Usage -> ./webserv {CONFIG_FILE}"; } };
+
+class MethodError : public std::exception
+	{ public:
+		virtual const char *what( void ) const throw()
+	{ return "Error: Unknown method"; } };
+
+class ListingError : public std::exception
+	{ public:
+		virtual const char *what( void ) const throw()
+	{ return "Error: Unknown dir_listing"; } };
 
 #endif

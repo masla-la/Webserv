@@ -4,8 +4,8 @@
 
 size_t	ft_stoi(std::string str)//
 {
-	int	i = -1;
-	int dest = 0;
+	size_t	i = -1;
+	size_t dest = 0;
 
 	while (++i < str.size())
 	{

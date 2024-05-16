@@ -2,7 +2,6 @@
 
 Config::Config(void)
 {
-	//_directives.push_back("server");
 	_directives.push_back("listen");
 	_directives.push_back("server_name");
 	_directives.push_back("allow_methods");
@@ -10,9 +9,9 @@ Config::Config(void)
 	_directives.push_back("error_pages");
 	_directives.push_back("index");
 	_directives.push_back("client_max_body_size");
-	_directives.push_back("host");//
-	//_directives.push_back("location");
-	//
+	_directives.push_back("host");
+	_directives.push_back("dir_listing");
+	_directives.push_back("location");
 }
 
 Config::~Config(void)
@@ -48,11 +47,11 @@ void	Config::checkConfig(char **env)
 	std::string		line;
 	std::string		conf;
 	Server			server;
-	int				n = 0;
+	size_t			n = 0;
 
-	for(unsigned int i = 0; i < _fd.size() + 1; i++)
+	for(size_t i = 0; i < _fd.size() + 1; i++)
 	{
-		if ( n == 0 && _fd[i] == "server")
+		if (n == 0 && _fd[i] == "server")
 			n++;
 		else if (i == _fd.size() || _fd[i] == "server")
 		{
@@ -64,24 +63,23 @@ void	Config::checkConfig(char **env)
 		{
 			line = _fd[i];
 			conf = _fd[i];
-			if (_fd[i].size() == _fd[i].find(' ') + 1 || _fd[i].find(' ') == -1)
+			if (_fd[i].size() == _fd[i].find(' ') + 1 || _fd[i].find(' ') == std::string::npos)
 				throw ConfError();
 			line.erase(_fd[i].find(' '), conf.size() - _fd[i].find(' '));
 			if (!isdirective(line, _directives))
 				throw BadConfig();
 			conf.erase(0, _fd[i].find(' ') + 1);
 			if (line == "location")
-				parseLocation(_fd,  server, env);//
-			checkDirective(line, conf, server, env);
+				i = parseLocation(i + 1, conf, server);
+			else
+				checkDirective(line, conf, server, env);
 		}
 	}
 }
 
 void	Config::checkDirective(std::string line, std::string conf, Server & server, char **env)
 {
-	//if (conf.empty())
-	//	throw "Error: conf sin asignar";//no tiene conf la directiva
-	for (int i = 0; i < _directives.size(); i++)
+	for (size_t i = 0; i < _directives.size(); i++)
 	{
 		if (line == _directives[i])
 			switch (i)
@@ -95,7 +93,7 @@ void	Config::checkDirective(std::string line, std::string conf, Server & server,
 					break;
 
 				case 2:
-					//allow_methods
+					server.setMethod(conf);
 					break;
 
 				case 3:
@@ -118,14 +116,70 @@ void	Config::checkDirective(std::string line, std::string conf, Server & server,
 					server.setHost(conf);
 					break;
 
+				case 8:
+					server.setListing(conf);
+					break ;
+
 				default:
 					break;
 			}
 	}
 }
 
-void	Config::parseLocation(std::vector<std::string> fd, Server server, char **env)
-{}
+size_t	Config::parseLocation(size_t n, std::string dir, Server server)
+{
+	Location	loc;
+
+	loc.setDir(dir);
+	std::vector<std::string>	direct = loc.getDirectives();
+	std::string					line;
+	std::string					conf;
+
+	while (n <= _fd.size() && _fd[n] != "server")
+	{
+		line = _fd[n];
+		conf = _fd[n];
+		if (_fd[n].size() == _fd[n].find(' ') + 1 || _fd[n].find(' ') == std::string::npos)
+			throw ConfError();
+		line.erase(_fd[n].find(' '), conf.size() - _fd[n].find(' '));
+		if (line == "locate")
+			return n - 1;
+		if (!isdirective(line, direct))
+			throw BadConfig();
+		conf.erase(0, _fd[n].find(' ') + 1);
+
+		for (size_t i = 0; i < direct.size(); i++)
+		{
+			if (direct[i] == line)
+			{
+				switch (i)
+				{
+					case 0:
+						loc.setRoot(conf);
+						break ;
+
+					case 1:
+						loc.setIndex(conf);
+						break ;
+
+					case 2:
+						loc.setMethods(conf);
+						break ;
+
+					case 3:
+						loc.setListing(conf);
+						break ;
+						
+					default:
+						break ;
+				}
+			}
+		}
+		n++;
+	}
+	server.setLocation(loc);
+	return (n - 1);
+}
 
 std::vector<Server>	Config::getServ(void)
 {

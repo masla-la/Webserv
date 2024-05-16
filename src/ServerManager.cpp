@@ -7,6 +7,9 @@ ServerManager::ServerManager(void)
 	_default_error += "Content-Type: text/plain\n";
 	_default_error += "Content-Length: 15\n\n";
 	_default_error += "404 Not Found\n";
+
+	FD_ZERO(&_read_set);
+	FD_ZERO(&_write_set);
 }
 
 ServerManager::ServerManager(const ServerManager &obj){}
@@ -163,6 +166,8 @@ void	ServerManager::handle_request()
 
 				//location
 				//cgi
+
+				//comprobar q existe dicho metodo
 				if (request.getMethod() == "GET")
 					metodGet(_client[i], url);
 				else if (request.getMethod() == "POST")
