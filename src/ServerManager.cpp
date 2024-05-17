@@ -95,8 +95,7 @@ void	ServerManager::acceptClient()
 	{
 		if (FD_ISSET(_server[i].getSock(), &_read_set))
 		{
-			Client	client;
-			client.init(i);//
+			Client	client(i);
 			client.setSock(accept(_server[i].getSock(), (sockaddr *)&addr, &size));
 			_client.push_back(client);
 			if (client.getSock() < 0)

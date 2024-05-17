@@ -10,21 +10,19 @@ class Client
 
 		int				_socket;
 		size_t			_server_n;
-		unsigned int	_time;
 		std::string		_last_req;
 		
 		size_t			_reqSize;
 
+		Client( void );
+
 	public:
 
-		Client( void ){};
-		Client( const Client & obj ){*this = obj;};//
-		~Client( void ){};
-		Client	&operator=(Client const &obj){_socket = obj._socket;return *this;};
+		Client( size_t n );
+		Client( const Client & obj );
+		~Client( void );
+		Client	&operator=(Client const &obj);
 
-		//---
-		void	init( size_t n );
-		//---
 
 	//GETTERS
 		int			getSock( void ){ return _socket; };
