@@ -21,7 +21,7 @@ Config::~Config(void)
 
 void	Config::readFd(std::string namefd)
 {
-	std::ifstream	file(namefd);
+	std::ifstream	file(namefd.c_str());
 	std::string 	out;
 
 	while (std::getline(file, out))
@@ -56,6 +56,8 @@ void	Config::checkConfig(char **env)
 		else if (i == _fd.size() || _fd[i] == "server")
 		{
 			_server.push_back(server);
+			if (i == _fd.size())
+				break ;
 			Server	newServer;
 			server = newServer;
 		}

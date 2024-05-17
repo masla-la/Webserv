@@ -2,10 +2,14 @@
 
 std::string	ft_size_to_str(size_t n)
 {
-	std::string dest;
+	std::stringstream ss;
+	ss << n;
+	return ss.str();
+}
 
-	if (n < 10)
-		dest += ft_size_to_str(n / 10);
-	dest = (n % 10) + '0';
-	return  dest;
+std::string	ft_size_to_str(int n)
+{
+	std::stringstream ss;
+	ss << n;
+	return ss.str();
 }

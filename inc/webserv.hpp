@@ -46,7 +46,8 @@ bool		isdirective ( std::string line, std::vector<std::string> dir );
 std::string	returnEnv( char **env, std::string line );
 
 //
-std::string	ft_size_to_str(size_t n);	
+std::string	ft_size_to_str(size_t n);
+std::string	ft_size_to_str(int n);
 //
 
 //EXECPTIONS

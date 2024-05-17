@@ -8,28 +8,26 @@ FILES_SRC = $(addprefix src/, $(FILES))
 SRC = $(addsuffix .cpp, $(FILES_SRC))
 OBJ = $(addsuffix .o, $(FILES_SRC))
 
-
 CC = clang++
-CFLAGS = #-Wall -Werror -Wextra -std=c++98
+CFLAGS = -Wall -Werror -Wextra -std=c++98
 RM = rm -rf
 
 all: $(NAME)
 
-.c.o: $(SRC)
-		@$(CC) $(CFLAGS) -c -o $@ $^
+$(OBJ): %.o: %.cpp
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(NAME): $(OBJ)
-		@$(CC) $(CFLAGS) $(SRC) -o $(NAME)
-		@echo "Done"
+	@$(CC) $(CFLAGS) $^ -o $(NAME)
+	@echo "Done"
 
 clean:
-		@$(RM) $(OBJ)
-		@echo "Clean"
+	@$(RM) $(OBJ)
+	@echo "Clean"
 
 fclean: clean
-		@$(RM) $(NAME)
+	@$(RM) $(NAME)
 
 re: fclean all
 
 .PHONY: all clean fclean re
-.SILENT:% 

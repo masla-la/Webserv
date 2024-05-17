@@ -40,6 +40,7 @@ class	ServerManager
 		void	acceptClient( void );
 		void	handle_request( void );
 
+		bool	checkMethod( std::string method, std::vector<std::string> methods_list );
 		void	metodGet( Client & client, std::string url );
 		void	metodPost( Client & client, std::string url, Request & request );
 		void	metodDelete( Client & client, std::string url );
@@ -57,9 +58,9 @@ class	ServerManager
 		void	setErrors();
 
 	//GETTERS
-		Server		getServer( unsigned int n ){ return _server[n]; };//
-		Client		getClient( unsigned int n ){ return _client[n]; };//
-		std::string	getError( int n );
+		std::vector<Server>		getServer( void ){ return _server; };//
+		std::vector<Client>		getClient( void ){ return _client; };//
+		std::string				getError( int n );
 };
 
 #endif

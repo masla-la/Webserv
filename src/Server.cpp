@@ -2,12 +2,15 @@
 
 Server::Server(void)
 {
+	std::cout << "seerver_iniciado"<< "\n";
 	_port = 8080;
 	_server_name = "Default";
 	_root = "./html";
 	_index = "index.html";
 	_client_max_body_size = 1024;
 	_host = "0.0.0.0";
+
+	_listing = true;
 }
 
 Server::Server(const Server & obj)//
@@ -129,6 +132,11 @@ bool	Server::getListing(void)
 std::vector<Location>	Server::getLocation(void)
 {
 	return _location;
+}
+
+std::vector<std::string>	Server::getMethods(void)
+{
+	return _methods;
 }
 
 //SETTERS

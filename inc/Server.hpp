@@ -50,6 +50,7 @@ class	Server
 		std::string								getHost( void );
 		bool									getListing( void );
 		std::vector<Location>					getLocation( void );
+		std::vector<std::string>				getMethods( void );
 
 	//SETTERS
 		void		setSock( int sock );

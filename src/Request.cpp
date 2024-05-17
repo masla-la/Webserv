@@ -39,15 +39,16 @@ void	Request::makeGet(std::stringstream & strs)
 
 	while (strs >> token)
 	{
-		if (token.back() == ':')
+		if (token[token.size() - 1] == ':')
 		{
 			if (!key.empty() && !line.empty() && key != token)
 			{
-				if (line.back() == ' ')
-					line.pop_back();
+				if (line[line.size() - 1] == ' ')
+					line.resize(line.size() - 2);
 				//_header.inser()
+				_header[key] = token;
 			}
-			token.pop_back();
+			token.resize(token.size() - 2);
 			key = token;
 			line.clear();
 		}
@@ -60,23 +61,13 @@ void	Request::makeGet(std::stringstream & strs)
 	}
 	if (!line.empty() && !key.empty())
 	{
-		if (line.back() == ' ')
-			line.pop_back();
+		if (line[line.size() - 1] == ' ')
+			line.resize(line.size() - 2);
 		//_header.insert
+		_header[key] = token;
 	}
 
 }
-
-/*void	Request::makePost(std::stringstream & strs)
-{
-	std::string	body;
-	while (strs >> body)
-	{
-		std::cout << body << std::endl;//
-		if (body.find("boundary=") != std::string::npos);
-			_boundary =  body
-	}
-}*/
 
 void	Request::makePost(std::stringstream &strs)
 {
@@ -94,15 +85,15 @@ void	Request::makePost(std::stringstream &strs)
 		{
 			if (!key.empty() && !line.empty() && key != token)
 			{
-				if (line.back() == ' ')
-					line.pop_back(); // remove space
-				_header[key] = line; //.insert(std::make_pair(key, line));
+				if (line[line.size() - 1] == ' ')
+					line.resize(line.size() - 2);
+				_header[key] = line;
 				line.clear();
 			}
 			key = token;
 			strs >> token;
-			_header[key] = token; //.insert(std::make_pair(key, token));
-			_len = ft_stoi(token); // Use std::stoi for safe string to int conversion
+			_header[key] = token;
+			_len = ft_stoi(token);
 			key.clear();
 		}
 		else if (_request.find(token) >= pos - token.length()) 
@@ -111,11 +102,11 @@ void	Request::makePost(std::stringstream &strs)
 			if (!key.empty() && key != token)
 			{
 				if (!line.empty())
-					line.pop_back(); // remove space
+					line.resize(line.size() - 2);
 				if (!line.empty())
-					_header.insert(std::make_pair(key, line));
+					_header[key] = token;//_header.insert(std::make_pair(key, line));
 				else
-					_header.insert(std::make_pair(key, token));
+					_header[key] = token;//_header.insert(std::make_pair(key, token));
 			}
 			size_t pos_header = pos;
 			while (pos < _len + pos_header && pos < _request.size())
@@ -127,15 +118,15 @@ void	Request::makePost(std::stringstream &strs)
 				_body = _full_body;
 			break;
 		}
-		else if (token.back() == ':')
+		else if (token[token.size() - 1] == ':')
 		{
 			if (!key.empty() && key != token)
 			{
-				if (line.back() == ' ')
-					line.pop_back();
-				_header.insert(std::make_pair(key, line));
+				if (line[line.size() - 1] == ' ')
+					line.resize(line.size() - 2);
+				_header[key] = line;//_header.insert(std::make_pair(key, line));
 			}
-			token.pop_back();
+			token.resize(token.size() - 2);
 			key = token;
 			line.clear();
 		}
@@ -147,10 +138,9 @@ void	Request::makePost(std::stringstream &strs)
 		}
 	}
 
-	// Print the headers
 	std::cout << "Headers:" << std::endl;
-	for (const auto& pair : _header)
-		std::cout << pair.first << ": " << pair.second << std::endl;
+	//for (const auto& pair : _header)
+	//	std::cout << pair.first << ": " << pair.second << std::endl;
 }
 
 int		Request::checkProt()
