@@ -2,7 +2,6 @@
 
 Server::Server(void)
 {
-	std::cout << "seerver_iniciado"<< "\n";
 	_port = 8080;
 	_server_name = "Default";
 	_root = "./html";

@@ -31,7 +31,7 @@ class	ServerManager
 
 		//---
 		//int		setupServer( std::string port, std::string host, int n );
-		int		InitServer( std::vector<Server> const & confServ );
+		int		InitServer( std::vector<Server> confServ );
 		//---
 		void	addToSet( int fd, fd_set *set );
 		void	removeFromSet( int fd, fd_set *set );

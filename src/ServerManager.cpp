@@ -18,10 +18,7 @@ ServerManager::ServerManager(const ServerManager &obj)
 }
 
 ServerManager::~ServerManager(void)
-{
-	for(unsigned int i = 0; i < _server.size(); i++)
-		close(_server[i].getSock());//
-}
+{}
 
 ServerManager	&ServerManager::operator=(const ServerManager &obj)
 {
@@ -37,10 +34,9 @@ ServerManager	&ServerManager::operator=(const ServerManager &obj)
 	return *this;
 }
 
-int	ServerManager::InitServer(std::vector<Server> const & confServ)
+int	ServerManager::InitServer(std::vector<Server> confServ)
 {
-	for (size_t i = 0; i < confServ.size(); i++)
-		_server.push_back(confServ[i]);
+	_server = confServ;
 	for (size_t i = 0; i < _server.size(); i++)
 		if (_server[i].setupServer())
 			_server.erase(_server.begin() + i);
@@ -405,10 +401,9 @@ void	ServerManager::metodGet(Client &client, std::string url)
 	int	fd = open(path.c_str(), O_RDONLY);
 	stat(path.c_str(), &stat_path);
 
-	if (!fd)
+	if (fd <= 0)
 	{
 		sendError(404, client);
-		close(fd);
 		return ;
 	}
 	if (S_ISDIR(stat_path.st_mode))

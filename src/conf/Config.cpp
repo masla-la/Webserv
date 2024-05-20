@@ -15,8 +15,7 @@ Config::Config(void)
 }
 
 Config::~Config(void)
-{
-}
+{}
 
 
 void	Config::readFd(std::string namefd)
@@ -137,7 +136,7 @@ size_t	Config::parseLocation(size_t n, std::string dir, Server server)
 	std::string					line;
 	std::string					conf;
 
-	while (n <= _fd.size() && _fd[n] != "server")
+	while (n < _fd.size() && _fd[n] != "server")
 	{
 		line = _fd[n];
 		conf = _fd[n];

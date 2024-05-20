@@ -38,7 +38,7 @@ void	parse_arg(int ac, char **av)
 
 	std::ifstream	file(av[1]);
 
-	if (!file)
+	if (!file.is_open())
 		throw ArgError();
 	else
 	{
