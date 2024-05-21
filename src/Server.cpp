@@ -128,15 +128,27 @@ bool	Server::getListing(void)
 	return _listing;
 }
 
+std::vector<std::string>	Server::getMethods(void)
+{
+	return _methods;
+}
+
 std::vector<Location>	Server::getLocation(void)
 {
 	return _location;
 }
 
-std::vector<std::string>	Server::getMethods(void)
+Location	*Server::getLocation(std::string url)
 {
-	return _methods;
+
+	for (size_t i = 0; i < _location.size(); i++)
+	{
+		if (url == _location[i].getDir())
+			return &_location[i];
+	}
+	return NULL;
 }
+
 
 //SETTERS
 
@@ -243,7 +255,7 @@ void	Server::setListing( std::string listing )
 		throw ListingError();
 }
 
-void	Server::setLocation(Location & loc)
+void	Server::setLocation(Location loc)
 {
 	_location.push_back(loc);
 }

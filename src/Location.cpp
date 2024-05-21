@@ -2,7 +2,7 @@
 
 Location::Location(void)
 {
-	_directives.push_back("root");
+	//_directives.push_back("root");
 	_directives.push_back("index");
 	_directives.push_back("allowed_methods");
 	_directives.push_back("dir_listing");
@@ -19,7 +19,7 @@ Location::~Location(void)
 Location	&Location::operator=(Location const &obj)
 {
 	_dir = obj._dir;
-	_root = obj._root;
+	//_root = obj._root;
 	_index = obj._index;
 	_directives = obj._directives;
 	_redir = obj._redir;
@@ -29,16 +29,17 @@ Location	&Location::operator=(Location const &obj)
 	return *this;
 }
 
+
 //SETTERS
 void	Location::setDir( std::string dir )
 {
 	_dir = dir;
 }
 
-void	Location::setRoot( std::string root )
+/*void	Location::setRoot( std::string root )
 {
 	_root = root;
-}
+}*/
 
 void	Location::setIndex( std::string index )
 {
@@ -79,10 +80,10 @@ std::string					Location::getDir( void )
 	return _dir;
 }
 
-std::string					Location::getRoot( void )
+/*std::string					Location::getRoot( void )
 {
 	return _root;
-}
+}*/
 
 std::string					Location::getIndex( void )
 {

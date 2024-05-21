@@ -25,7 +25,7 @@ class	Config
 		void	readFd( std::string namefd );
 		void	checkConfig( char **env );
 		void	checkDirective( std::string line, std::string conf, Server & server, char **env );
-		size_t	parseLocation( size_t n, std::string dir, Server server );
+		size_t	parseLocation( size_t n, std::string dir, Server & server );
 
 		std::vector<Server>	getServ( void );
 

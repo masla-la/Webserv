@@ -41,7 +41,7 @@ class	ServerManager
 		void	handle_request( void );
 
 		bool	checkMethod( std::string method, std::vector<std::string> methods_list );
-		void	metodGet( Client & client, std::string url );
+		void	metodGet( Client & client, std::string url, Location *location );
 		void	metodPost( Client & client, std::string url, Request & request );
 		void	metodDelete( Client & client, std::string url );
 

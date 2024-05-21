@@ -40,7 +40,6 @@ void	Config::readFd(std::string namefd)
 		throw EmptyFile();
 }
 
-
 void	Config::checkConfig(char **env)
 {
 	std::string		line;
@@ -127,7 +126,7 @@ void	Config::checkDirective(std::string line, std::string conf, Server & server,
 	}
 }
 
-size_t	Config::parseLocation(size_t n, std::string dir, Server server)
+size_t	Config::parseLocation(size_t n, std::string dir, Server &server)
 {
 	Location	loc;
 
@@ -156,18 +155,14 @@ size_t	Config::parseLocation(size_t n, std::string dir, Server server)
 				switch (i)
 				{
 					case 0:
-						loc.setRoot(conf);
-						break ;
-
-					case 1:
 						loc.setIndex(conf);
 						break ;
 
-					case 2:
+					case 1:
 						loc.setMethods(conf);
 						break ;
 
-					case 3:
+					case 2:
 						loc.setListing(conf);
 						break ;
 						

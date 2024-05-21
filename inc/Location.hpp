@@ -8,7 +8,7 @@ class	Location
 	private:
 
 		std::string					_dir;
-		std::string					_root;
+		//std::string					_root;
 		std::string					_index;
 		std::vector<std::string>	_directives;
 		std::string					_redir;
@@ -22,9 +22,11 @@ class	Location
 		~Location( void );
 		Location	&	operator=( Location const & obj );
 
+		bool	checkMethod(std::string method);
+
 	//SETTERS
 		void	setDir( std::string dir );
-		void	setRoot( std::string root );
+		//void	setRoot( std::string root );
 		void	setIndex( std::string index );
 		void	setRedir( std::string redir );
 		void	setListing( std::string listing );
@@ -32,7 +34,7 @@ class	Location
 
 	//GETTERS
 		std::string					getDir( void );
-		std::string					getRoot( void );
+		//std::string					getRoot( void );
 		std::string					getIndex( void );
 		std::vector<std::string>	getDirectives( void );
 		std::string					getRedir( void );

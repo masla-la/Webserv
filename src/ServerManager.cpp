@@ -116,9 +116,9 @@ void	ServerManager::handle_request()
 			_client[i].setReqSize(reqSize);//
 			_client[i].setLastReq(req);
 
-			size_t headerSize = _client[i].getLastReq().find("\r\n\r\n", 0) + 4;
+			//size_t headerSize = _client[i].getLastReq().find("\r\n\r\n", 0) + 4;
 
-			(void)headerSize;
+			//(void)headerSize;
 
 			if (reqSize < 0)
 			{
@@ -142,7 +142,6 @@ void	ServerManager::handle_request()
 				std::cout << "New Request" << std::endl;
 				Request	request(_client[i].getLastReq().c_str());;
 
-				//request.requestInit(_client[i].getLastReq().c_str());
 				//metodo valido
 				int	ret = -1;
 				if ((ret = request.checkProt()) != -1)
@@ -173,10 +172,13 @@ void	ServerManager::handle_request()
 					continue;
 				}
 
+				
 				//location
 				//cgi
+				Location	*location = _server[_client[i].getServ()].getLocation(url);
 
-				if (checkMethod(request.getMethod(), _server[_client[i].getServ()].getMethods()))
+				if (checkMethod(request.getMethod(), _server[_client[i].getServ()].getMethods()) && \
+				(location != NULL && checkMethod(request.getMethod(), location->getMethods())))
 				{
 					sendError(405, _client[i]);
 					removeFromSet(_client[i].getSock(), &_read_set);
@@ -187,8 +189,9 @@ void	ServerManager::handle_request()
 				}
 				else
 				{
+					//loc reddir
 					if (request.getMethod() == "GET")
-						metodGet(_client[i], url);
+						metodGet(_client[i], url, location);
 					else if (request.getMethod() == "POST")
 						metodPost(_client[i], url, request);
 					else if (request.getMethod() == "DELETE")
@@ -210,47 +213,47 @@ void	ServerManager::handle_request()
 
 void	ServerManager::sendError(int error, Client & client)
 {
-    std::map<std::string, std::string> errorPages;
-    int fd;
+	std::map<std::string, std::string> errorPages;
+	int fd;
 
-    errorPages = _server[client.getServ()].getErrorPages();
-    if (errorPages.find(ft_size_to_str(error)) != errorPages.end())
-    {
-        fd = open(errorPages[ft_size_to_str(error)].c_str(), O_RDONLY);
-        if (fd < 0)
-        {
-            std::cout << "Error: Error pages failed" << std::endl;
+	errorPages = _server[client.getServ()].getErrorPages();
+	if (errorPages.find(ft_size_to_str(error)) != errorPages.end())
+	{
+		fd = open(errorPages[ft_size_to_str(error)].c_str(), O_RDONLY);
+		if (fd < 0)
+		{
+			std::cout << "Error: Error pages failed" << std::endl;
 			if (error == 404)
 				send(client.getSock(), _default_error.c_str(), _default_error.length(), 0);
 			else
 				sendError(404, client);
-            return;
-        }
-        close(fd);
-        sendPage(errorPages[ft_size_to_str(error)], client, 200);
-    }
-    else
-    {
-        if (!_errors[error].empty())
-        {
+			return;
+		}
+		close(fd);
+		sendPage(errorPages[ft_size_to_str(error)], client, 200);
+	}
+	else
+	{
+		if (!_errors[error].empty())
+		{
 			//---
 			std::cout << "Error Page: " << _errors[error] << std::endl;
-            //---
+			//---
 			int i;
-            std::string msg = "HTTP/1.1 ";
-            msg += _errors[error] + "\n";
-            msg += "Content-Type: text/plain\n";
-            msg += "Content-Length: ";
-            msg += ft_size_to_str(_errors[error].length() + 1);
-            msg += "\n\n";
-            msg += _errors[error] + "\n";
-            i = send(client.getSock(), msg.c_str(), msg.length(), 0); //
-            if (i < 0)
-                std::cout << "Client disconnected" << std::endl;
-            else if (i == 0)
-                std::cout << "0 byte passed to server" << std::endl;
-        }
-    }
+			std::string msg = "HTTP/1.1 ";
+			msg += _errors[error] + "\n";
+			msg += "Content-Type: text/plain\n";
+			msg += "Content-Length: ";
+			msg += ft_size_to_str(_errors[error].length() + 1);
+			msg += "\n\n";
+			msg += _errors[error] + "\n";
+			i = send(client.getSock(), msg.c_str(), msg.length(), 0); //
+			if (i < 0)
+				std::cout << "Client disconnected" << std::endl;
+			else if (i == 0)
+				std::cout << "0 byte passed to server" << std::endl;
+		}
+	}
 }
 
 void	ServerManager::sendPage(std::string page, Client & client, int error)
@@ -382,7 +385,7 @@ bool	ServerManager::checkMethod(std::string method, std::vector<std::string> met
 	return false;
 }
 
-void	ServerManager::metodGet(Client &client, std::string url)
+void	ServerManager::metodGet(Client &client, std::string url, Location *location)
 {
 	//---
 	std::cout << "Get Method\n";
@@ -395,8 +398,13 @@ void	ServerManager::metodGet(Client &client, std::string url)
 
 	std::string	path = _server[client.getServ()].getRoot() + url;
 
-	//location
-
+	//comprobar q deve ir al index y no a otra parte
+	if (location && !location->getIndex().empty())
+	{
+		sendPage(path + '/' + location->getIndex(), client, 200);
+		return ;
+	}
+	
 	struct stat	stat_path;
 	int	fd = open(path.c_str(), O_RDONLY);
 	stat(path.c_str(), &stat_path);
@@ -408,6 +416,8 @@ void	ServerManager::metodGet(Client &client, std::string url)
 	}
 	if (S_ISDIR(stat_path.st_mode))
 	{
+		if (url[url.size() - 1] != '/')
+			path += '/';
 		if (url[0] == '/')
 			sendPage(path + _server[client.getServ()].getIndex(), client, 200);
 		//else if ()

@@ -49,8 +49,9 @@ class	Server
 		size_t									getMaxBody( void );
 		std::string								getHost( void );
 		bool									getListing( void );
-		std::vector<Location>					getLocation( void );
 		std::vector<std::string>				getMethods( void );
+		std::vector<Location>					getLocation( void );
+		Location								*getLocation( std::string url );
 
 	//SETTERS
 		void		setSock( int sock );
@@ -65,7 +66,7 @@ class	Server
 		void		setHost( std::string host );
 		void		setMethod( std::string method );
 		void		setListing( std::string listing );
-		void		setLocation( Location & loc );
+		void		setLocation( Location loc );
 
 };
 
