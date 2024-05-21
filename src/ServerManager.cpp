@@ -199,6 +199,7 @@ void	ServerManager::handle_request()
 				}
 				
 				/////
+				//http /1.1 mantiene  la conexion abierta a menos  que la request lo indique -> Connection: close
 				if (_client[i].getSock())
 				{
 					removeFromSet(_client[i].getSock(), &_read_set);
