@@ -68,8 +68,8 @@ int main(int ac, char **av, char **env)
 	signal(SIGINT, ft_sig);
 	while (1)
 	{
-		manager.waitClient();
 		manager.acceptClient();
+		manager.waitClient();
 		manager.handle_request();
 	}
 	return 0;

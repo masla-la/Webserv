@@ -14,6 +14,8 @@ class Client
 		
 		size_t			_reqSize;
 
+		time_t	_time;
+
 		Client( void );
 
 	public:
@@ -25,14 +27,15 @@ class Client
 
 
 	//GETTERS
-		int			getSock( void ){ return _socket; };
-		std::string	getLastReq( void ){ return _last_req; };
-		int			getServ( void ){ return _server_n; };
+		int			getSock( void );
+		std::string	getLastReq( void );
+		int			getServ( void );
+		time_t		getTime( void );
 	//SETTERS
-		void		setSock( int socket ){ _socket = socket; };
+		void		setSock( int socket );
 		void		setLastReq( char *req );
-
-		void		setReqSize( size_t i){ _reqSize = i; };
+		void		setReqSize( size_t i );
+		void		setTime( time_t time );
 };
 
 #endif

@@ -7,6 +7,8 @@ ServerManager::ServerManager(void): _last_fd(-1)
 	_default_error += "Content-Type: text/plain\n";
 	_default_error += "Content-Length: 15\n\n";
 	_default_error += "404 Not Found\n";
+	
+	_timeout.tv_sec	= 30;
 
 	FD_ZERO(&_read_set);
 	FD_ZERO(&_write_set);
@@ -37,6 +39,7 @@ ServerManager	&ServerManager::operator=(const ServerManager &obj)
 int	ServerManager::InitServer(std::vector<Server> confServ)
 {
 	_server = confServ;
+	exit(1);
 	for (size_t i = 0; i < _server.size(); i++)
 		if (_server[i].setupServer())
 			_server.erase(_server.begin() + i);
@@ -60,10 +63,23 @@ void	ServerManager::removeFromSet(int fd, fd_set *set)
 void	ServerManager::selectFd(fd_set *read, fd_set *write)
 {
 	int	i = 0;
-	if ((i = select(_last_fd + 1, read, write, 0, 0)) < 0)
-		exit (1);//
+
+	if ((i = select(_last_fd + 1, read, write, 0, &_timeout)) < 0)
+		std::cout << "Error: select failed" << std::endl;
 	else if (i == 0)
-		std::cout << "Select time out" << std::endl;//
+	{
+		time_t current_time = time(NULL);
+		for (size_t n = 0; n < _client.size(); n++)
+		{
+			if (current_time - _client[n].getTime() == 30)
+			{
+				std::cout << "Select time out" << std::endl;//
+				removeFromSet(_client[n].getSock(), read);
+				close(_client[n].getSock());//
+				_client.erase(_client.begin() + n);
+			}
+		}
+	}
 	_read_set = *read;
 	_write_set = *write;
 }
@@ -110,6 +126,7 @@ void	ServerManager::handle_request()
 	{
 		if (FD_ISSET(_client[i].getSock(), &_read_set))
 		{
+			_client[i].setTime(time(NULL));
 			char	req[MAX_REQUEST_SIZE + 1];//max request size != 1024
 			size_t	reqSize = recv(_client[i].getSock(), req, MAX_REQUEST_SIZE, 0);
 
@@ -200,13 +217,13 @@ void	ServerManager::handle_request()
 				
 				/////
 				//http /1.1 mantiene  la conexion abierta a menos  que la request lo indique -> Connection: close
-				if (_client[i].getSock())
+				/*if (_client[i].getSock())
 				{
 					removeFromSet(_client[i].getSock(), &_read_set);
 					close(_client[i].getSock());
 					_client.erase(_client.begin() + i);
 					i--;
-				}
+				}*/
 			}
 		}
 	}
@@ -223,7 +240,7 @@ void	ServerManager::sendError(int error, Client & client)
 		fd = open(errorPages[ft_size_to_str(error)].c_str(), O_RDONLY);
 		if (fd < 0)
 		{
-			std::cout << "Error: Error pages failed" << std::endl;
+			std::cout << "Error: Error pages failed -> " << error << std::endl;
 			if (error == 404)
 				send(client.getSock(), _default_error.c_str(), _default_error.length(), 0);
 			else

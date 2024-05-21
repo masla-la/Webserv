@@ -22,6 +22,8 @@ class	ServerManager
 		std::map<int, std::string>		_errors;
 		std::string						_default_error;
 
+		struct timeval					_timeout;
+
 	public:
 
 		ServerManager( void );
