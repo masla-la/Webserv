@@ -39,7 +39,6 @@ ServerManager	&ServerManager::operator=(const ServerManager &obj)
 int	ServerManager::InitServer(std::vector<Server> confServ)
 {
 	_server = confServ;
-	exit(1);
 	for (size_t i = 0; i < _server.size(); i++)
 		if (_server[i].setupServer())
 			_server.erase(_server.begin() + i);
