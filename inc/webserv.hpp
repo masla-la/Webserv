@@ -21,6 +21,8 @@
 # include <signal.h>
 # include <fcntl.h>
 
+# include <dirent.h>
+
 //Network C
 # include <sys/socket.h>
 # include <netinet/in.h>

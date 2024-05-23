@@ -132,10 +132,6 @@ void	ServerManager::handle_request()
 			_client[i].setReqSize(reqSize);//
 			_client[i].setLastReq(req);
 
-			//size_t headerSize = _client[i].getLastReq().find("\r\n\r\n", 0) + 4;
-
-			//(void)headerSize;
-
 			if (reqSize < 0)
 			{
 				std::cout << "Error: Recv failed" << std::endl;
@@ -158,7 +154,6 @@ void	ServerManager::handle_request()
 				std::cout << "New Request" << std::endl;
 				Request	request(_client[i].getLastReq().c_str());;
 
-				//metodo valido
 				int	ret = -1;
 				if ((ret = request.checkProt()) != -1)
 				{
@@ -213,16 +208,20 @@ void	ServerManager::handle_request()
 					else if (request.getMethod() == "DELETE")
 						metodDelete(_client[i], url);
 				}
-				
+				if (_client[i].getSock() <= 0)
+				{
+					removeFromSet(_client[i].getSock(), &_read_set);
+					_client.erase(_client.begin() + i);
+				}
 				/////
 				//http /1.1 mantiene  la conexion abierta a menos  que la request lo indique -> Connection: close
-				/*if (_client[i].getSock())
+				if (_client[i].getSock())
 				{
 					removeFromSet(_client[i].getSock(), &_read_set);
 					close(_client[i].getSock());
 					_client.erase(_client.begin() + i);
 					i--;
-				}*/
+				}
 			}
 		}
 	}
@@ -402,6 +401,15 @@ bool	ServerManager::checkMethod(std::string method, std::vector<std::string> met
 	return false;
 }
 
+bool	ServerManager::checkIndex(std::string path, std::string index)
+{
+	std::string indexFile = path + '/' + index;
+	struct stat stat_index;
+	if (stat(indexFile.c_str(), &stat_index) == 0 && S_ISREG(stat_index.st_mode))
+		return true;
+	return false;
+}
+
 void	ServerManager::metodGet(Client &client, std::string url, Location *location)
 {
 	//---
@@ -415,13 +423,12 @@ void	ServerManager::metodGet(Client &client, std::string url, Location *location
 
 	std::string	path = _server[client.getServ()].getRoot() + url;
 
-	//comprobar q deve ir al index y no a otra parte
-	if (location && !location->getIndex().empty())
+	if (location && !location->getIndex().empty() && checkIndex(path, location->getIndex()))
 	{
 		sendPage(path + '/' + location->getIndex(), client, 200);
 		return ;
 	}
-	
+
 	struct stat	stat_path;
 	int	fd = open(path.c_str(), O_RDONLY);
 	stat(path.c_str(), &stat_path);
@@ -432,13 +439,11 @@ void	ServerManager::metodGet(Client &client, std::string url, Location *location
 		return ;
 	}
 	if (S_ISDIR(stat_path.st_mode))
-	{
-		if (url[url.size() - 1] != '/')
-			path += '/';
-		if (url[0] == '/')
-			sendPage(path + _server[client.getServ()].getIndex(), client, 200);
-		//else if ()
-		//location
+	{		
+		if (checkIndex(path, _server[client.getServ()].getIndex()) && !location)
+			sendPage(path + '/' + _server[client.getServ()].getIndex(), client, 200);
+		else if (_server[client.getServ()].getListing() && location && location->getListing())
+			listing(client, url, path, client.getSock());
 		else
 			sendError(404, client);
 	}
@@ -468,7 +473,7 @@ void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 	
 		if (!(request.getHeader().empty() && request.getBoundary().empty()))
 		{
-			std::cout << "Post in directory : " << std::endl;
+			std::cout << "Post in directory: " << std::endl;
 			size_t start = 0;
 			while (true)
 			{
@@ -517,7 +522,7 @@ void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 		sendPage("", client, 201);
 }
 
-void	ServerManager::metodDelete(Client  &client, std::string url)
+void	ServerManager::metodDelete(Client &client, std::string url)
 {
 	//---
 	std::cout << "Delete Method\n";
@@ -536,6 +541,46 @@ void	ServerManager::metodDelete(Client  &client, std::string url)
 		sendError(500, client);
 }
 
+void	ServerManager::listing(Client &client, std::string url, std::string path, int sock)
+{
+	//---
+	std::cout << "Directiry Listing\n";
+	//---
+	DIR				*dir;
+	struct dirent	*ent;
+	std::string		data;
+
+	std::string	msg = "HTTP/1.1 200 OK\n";
+	msg += "Content-Type: text/html\n\n";
+	msg += "<!DOCTYPE html>\n<html>\n<body>\n<h1>" + url + "</h1>\n<pre>\n";
+
+	if ((dir = opendir(path.c_str())) != NULL)
+	{
+		while ((ent = readdir(dir)) != NULL)
+		{
+			std::string	name = ent->d_name;
+			if (name == "." || name == "..")
+				continue ;
+			std::string href = url + "/" + name;
+			msg += "<a href=\"" + href + "\">" + name + "</a>\n";
+		}
+		closedir(dir);
+	}
+	else
+	{
+		std::cout << "Error: directory listing" << std::endl;
+		sendError(500, client);
+		return ;
+	}
+
+	msg += "</pre>\n</body>\n</html>\n";
+
+	int i;
+	if ((i = send(sock, msg.c_str(), msg.length(), 0)) < 0)
+		sendError(500, client);
+	else if (i == 0)
+		sendError(400, client);
+}
 
 //SETTERS
 void	ServerManager::setErrors()

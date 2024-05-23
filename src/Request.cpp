@@ -16,7 +16,6 @@ Request::Request(const char *req)
 	strs >> _protocol;
 	_len = 0;
 	makeQuery();
-	//std::cout << _query << "query" << std::endl;
 	if (_method == "GET")
 		makeGet(strs);
 	else if (_method == "POST")
@@ -145,6 +144,8 @@ void	Request::makePost(std::stringstream &strs)
 
 int		Request::checkProt()
 {
+	if (_method.size() == 0 || _url.size() == 0 || _protocol.size() == 0)
+		return 400;
 	if (_method != "GET" && _method != "POST" && _method != "DELETE")
 		return 405;
 	if (_protocol != "HTTP/1.1")

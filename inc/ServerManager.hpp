@@ -43,9 +43,11 @@ class	ServerManager
 		void	handle_request( void );
 
 		bool	checkMethod( std::string method, std::vector<std::string> methods_list );
+		bool	checkIndex(std::string path, std::string index);
 		void	metodGet( Client & client, std::string url, Location *location );
 		void	metodPost( Client & client, std::string url, Request & request );
 		void	metodDelete( Client & client, std::string url );
+		void	listing( Client & client, std::string url, std::string path, int sock );
 
 		//Utils
 		void		sendError( int error, Client & client );

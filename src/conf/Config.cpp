@@ -4,7 +4,7 @@ Config::Config(void)
 {
 	_directives.push_back("listen");
 	_directives.push_back("server_name");
-	_directives.push_back("allow_methods");
+	_directives.push_back("allowed_methods");
 	_directives.push_back("root");
 	_directives.push_back("error_pages");
 	_directives.push_back("index");

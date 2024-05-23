@@ -25,15 +25,14 @@ Server	&Server::operator=(Server const &obj)
 	_socket = obj._socket;
 	_addr = obj._addr;
 	_port = obj._port;
-
 	_server_name = obj._server_name;
 	_root = obj._root;
 	_error_pages = obj._error_pages;
 	_index = obj._index;
 	_client_max_body_size = obj._client_max_body_size;
 	_host = obj._host;
-
 	_location = obj._location;
+	_listing = obj._listing;
 
 	return *this;
 }
@@ -253,6 +252,7 @@ void	Server::setListing( std::string listing )
 		}
 	else
 		throw ListingError();
+	std::cout << _listing << "\n";
 }
 
 void	Server::setLocation(Location loc)
