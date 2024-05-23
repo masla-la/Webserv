@@ -1,4 +1,4 @@
-#include "../inc/Location.hpp"
+#include "../../inc/conf/Location.hpp"
 
 Location::Location(void)
 {

@@ -10,6 +10,7 @@
 //Containers
 # include <map>
 # include <vector>
+# include <iomanip>
 
 //System C
 # include <sys/wait.h>
@@ -18,10 +19,13 @@
 # include <stdio.h>
 # include <stdlib.h>
 
+//Signal C
 # include <signal.h>
-# include <fcntl.h>
 
+//Fd & Dir Cntl C
+# include <fcntl.h>
 # include <dirent.h>
+# include <sys/stat.h>
 
 //Network C
 # include <sys/socket.h>
@@ -29,13 +33,11 @@
 # include <sys/select.h>
 
 # include "conf/Config.hpp"
-class Config;
 
 # define MAX_REQUEST_SIZE 1024//
 
+//class Config;
 //---
-#include <iomanip>
-#include <sys/stat.h>
 //#include <cstdint>
 //#include <iomanip>
 

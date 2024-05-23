@@ -3,7 +3,7 @@
 
 # include "../webserv.hpp"
 # include "../Server.hpp"
-# include "../Location.hpp"
+# include "Location.hpp"
 
 class	Server;
 class	Location;

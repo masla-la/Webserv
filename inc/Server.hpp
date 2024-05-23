@@ -2,7 +2,7 @@
 # define _SERVER_HPP_
 
 # include "webserv.hpp"
-# include "Location.hpp"
+# include "conf/Location.hpp"
 
 class	Location;
 
