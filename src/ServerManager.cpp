@@ -20,7 +20,14 @@ ServerManager::ServerManager(const ServerManager &obj)
 }
 
 ServerManager::~ServerManager(void)
-{}
+{
+	FD_ZERO(&_write_set);
+	FD_ZERO(&_read_set);
+	for (size_t i = 0; i < _client.size(); i++)
+		close(_client[i].getSock());
+	for (size_t i = 0; i < _server.size(); i++)
+		close(_server[i].getSock());
+}
 
 ServerManager	&ServerManager::operator=(const ServerManager &obj)
 {
@@ -390,7 +397,6 @@ std::string	ServerManager::findType(std::string page)
 	return "text/plain";
 }
 
-
 //METHODS
 
 bool	ServerManager::checkMethod(std::string method, std::vector<std::string> methods_list)
@@ -443,7 +449,7 @@ void	ServerManager::metodGet(Client &client, std::string url, Location *location
 		if (checkIndex(path, _server[client.getServ()].getIndex()) && !location)
 			sendPage(path + '/' + _server[client.getServ()].getIndex(), client, 200);
 		else if (_server[client.getServ()].getListing() && location && location->getListing())
-			listing(client, url, path, client.getSock());
+			listing(client, url, path);
 		else
 			sendError(404, client);
 	}
@@ -541,7 +547,7 @@ void	ServerManager::metodDelete(Client &client, std::string url)
 		sendError(500, client);
 }
 
-void	ServerManager::listing(Client &client, std::string url, std::string path, int sock)
+void	ServerManager::listing(Client &client, std::string url, std::string path)
 {
 	//---
 	std::cout << "Directiry Listing\n";
@@ -576,7 +582,7 @@ void	ServerManager::listing(Client &client, std::string url, std::string path, i
 	msg += "</pre>\n</body>\n</html>\n";
 
 	int i;
-	if ((i = send(sock, msg.c_str(), msg.length(), 0)) < 0)
+	if ((i = send(client.getSock(), msg.c_str(), msg.length(), 0)) < 0)
 		sendError(500, client);
 	else if (i == 0)
 		sendError(400, client);

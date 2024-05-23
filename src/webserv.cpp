@@ -3,6 +3,7 @@
 #include "../inc/conf/Config.hpp"
 
 ServerManager	manager;
+bool			g_exit = false;
 
 size_t	ft_stoi(std::string str)//
 {
@@ -41,13 +42,8 @@ uint32_t to_uint32_t( const std::string & ip_address )
 void	ft_sig(int signal)
 {
 	(void)signal;
-	std::vector<Client>	client = manager.getClient();
-	std::vector<Server> server = manager.getServer();
-	for (size_t i = 0; i < server.size(); i++)
-		close(server[i].getSock());
-	for (size_t i = 0; i < client.size(); i++)
-		close(client[i].getSock());
-	exit(0);
+	g_exit = true;
+	return ;
 }
 
 int main(int ac, char **av, char **env)
@@ -71,6 +67,8 @@ int main(int ac, char **av, char **env)
 		manager.acceptClient();
 		manager.waitClient();
 		manager.handle_request();
+		if (g_exit == true)
+			break ;
 	}
 	return 0;
 }

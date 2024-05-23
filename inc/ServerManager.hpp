@@ -47,7 +47,7 @@ class	ServerManager
 		void	metodGet( Client & client, std::string url, Location *location );
 		void	metodPost( Client & client, std::string url, Request & request );
 		void	metodDelete( Client & client, std::string url );
-		void	listing( Client & client, std::string url, std::string path, int sock );
+		void	listing( Client & client, std::string url, std::string path );
 
 		//Utils
 		void		sendError( int error, Client & client );
