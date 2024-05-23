@@ -10,7 +10,7 @@ Location::Location(void)
 
 Location::Location(Location const &obj)
 {
-	*this = obj;//
+	*this = obj;
 }
 
 Location::~Location(void)
@@ -19,7 +19,6 @@ Location::~Location(void)
 Location	&Location::operator=(Location const &obj)
 {
 	_dir = obj._dir;
-	//_root = obj._root;
 	_index = obj._index;
 	_directives = obj._directives;
 	_redir = obj._redir;

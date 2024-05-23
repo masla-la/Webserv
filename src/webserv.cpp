@@ -5,7 +5,7 @@
 ServerManager	manager;
 bool			g_exit = false;
 
-size_t	ft_stoi(std::string str)//
+size_t	ft_stoi(std::string str)
 {
 	size_t	i = -1;
 	size_t dest = 0;
@@ -13,7 +13,7 @@ size_t	ft_stoi(std::string str)//
 	while (++i < str.size())
 	{
 		if (str[i] < '0' || str[i] > '9')
-			throw "Number error{ ft_stoi }";//Error ,no es numero
+			throw "Number error{ ft_stoi }";
 		dest = dest * 10 + (str[i] - '0');
 	}
 	return  dest;

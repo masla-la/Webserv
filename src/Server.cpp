@@ -12,9 +12,9 @@ Server::Server(void)
 	_listing = true;
 }
 
-Server::Server(const Server & obj)//
+Server::Server(const Server & obj)
 {
-	*this = obj;//
+	*this = obj;
 }
 
 Server::~Server(void)
@@ -222,7 +222,7 @@ void	Server::setMaxBody(size_t body_size)
 {
 	_client_max_body_size = body_size;
 	if (body_size == 0)
-		_client_max_body_size = 1024;//
+		_client_max_body_size = MAX_REQUEST_SIZE;
 	if (body_size > 2147483647)
 		_client_max_body_size  = 2147483647;
 }
