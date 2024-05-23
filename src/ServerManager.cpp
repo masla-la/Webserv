@@ -207,6 +207,12 @@ void	ServerManager::handle_request()
 					i--;
 					continue;
 				}
+				else if (is_cgi(url))
+				{
+					//---
+					std::cout << "CGI" << std::endl;
+					//---
+				}
 				else
 				{
 					//loc reddir
