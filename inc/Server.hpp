@@ -29,13 +29,12 @@ class	Server
 	public:
 
 		Server( void );
-		Server( const Server & obj );//
+		Server( const Server & obj );
 		~Server( void );
 		Server	&	operator=( const Server & obj );
 
-		//---
 		int		setupServer( void );
-		//---
+
 
 	//GETTERS
 		int				getSock( void );

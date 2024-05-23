@@ -10,17 +10,19 @@ class	Location;
 
 class	Config
 {
+
 	private:
 
 		std::vector<std::string>	_fd;
 		std::vector<Server>			_server;
-		//std::vector<Location>		_location;
 		std::vector<std::string>	_directives;
 
 	public:
 
 		Config( void );
+		Config( const Config & obj );
 		~Config( void );
+		Config	&operator=( const Config & obj );
 
 		void	readFd( std::string namefd );
 		void	checkConfig( char **env );
@@ -42,6 +44,7 @@ class	Config
 			{ public:
 				virtual const char *what( void ) const throw()
 			{ return "Error: Unknown directive"; } };
+
 
 };
 

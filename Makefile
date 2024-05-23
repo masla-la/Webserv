@@ -1,7 +1,7 @@
 NAME = webserv
 
 FILES = webserv ServerManager Server Client Request \
-		conf/Config conf/parser_utils utils Location
+		conf/Config conf/parser_utils conf/Location utils
 
 FILES_SRC = $(addprefix src/, $(FILES))
 

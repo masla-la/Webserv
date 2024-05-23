@@ -40,6 +40,8 @@ ServerManager	&ServerManager::operator=(const ServerManager &obj)
 	_errors = obj._errors;
 	_default_error = obj._default_error;
 
+	_timeout = obj._timeout;
+
 	return *this;
 }
 

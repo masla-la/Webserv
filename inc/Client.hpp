@@ -11,7 +11,6 @@ class Client
 		int				_socket;
 		size_t			_server_n;
 		std::string		_last_req;
-		
 		size_t			_reqSize;
 
 		time_t	_time;
@@ -25,7 +24,6 @@ class Client
 		~Client( void );
 		Client	&operator=(Client const &obj);
 
-
 	//GETTERS
 		int			getSock( void );
 		std::string	getLastReq( void );
@@ -36,6 +34,7 @@ class Client
 		void		setLastReq( char *req );
 		void		setReqSize( size_t i );
 		void		setTime( time_t time );
+
 };
 
 #endif

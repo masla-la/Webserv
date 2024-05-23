@@ -33,26 +33,19 @@
 # include <sys/select.h>
 
 # include "conf/Config.hpp"
+class	Config;
 
-# define MAX_REQUEST_SIZE 1024//
-
-//class Config;
-//---
-//#include <cstdint>
-//#include <iomanip>
+# define MAX_REQUEST_SIZE 1024
 
 uint32_t	to_uint32_t( const std::string & ip_address );
 size_t		ft_stoi( std::string str );//
-//---
 
 void		parser( int ac, char **av, Config &conf, char **env );
 bool		isdirective ( std::string line, std::vector<std::string> dir );
 std::string	returnEnv( char **env, std::string line );
 
-//
 std::string	ft_size_to_str(size_t n);
 std::string	ft_size_to_str(int n);
-//
 
 //EXECPTIONS
 class ArgError : public std::exception

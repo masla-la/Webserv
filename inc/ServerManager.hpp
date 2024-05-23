@@ -31,10 +31,8 @@ class	ServerManager
 		~ServerManager( void );
 		ServerManager	&	operator=( const ServerManager & obj );
 
-		//---
-		//int		setupServer( std::string port, std::string host, int n );
 		int		InitServer( std::vector<Server> confServ );
-		//---
+
 		void	addToSet( int fd, fd_set *set );
 		void	removeFromSet( int fd, fd_set *set );
 		void	selectFd( fd_set *read, fd_set *write );
@@ -50,12 +48,11 @@ class	ServerManager
 		void	listing( Client & client, std::string url, std::string path );
 		void	redir( Client & client, std::string redir );
 
-		//Utils
+	//Utils
 		void		sendError( int error, Client & client );
 		void		sendPage( std::string page, Client & client, int code );
 		bool		writePost(std::string path, Client & client, std::string str);
 		std::string	findType( std::string page );
-		//---
 
 	//SETTERS
 		void	setServer();
@@ -66,6 +63,7 @@ class	ServerManager
 		std::vector<Server>		getServer( void ){ return _server; };//
 		std::vector<Client>		getClient( void ){ return _client; };//
 		std::string				getError( int n );
+
 };
 
 #endif

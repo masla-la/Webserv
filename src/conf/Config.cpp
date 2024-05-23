@@ -14,9 +14,22 @@ Config::Config(void)
 	_directives.push_back("location");
 }
 
+Config::Config(const Config &obj)
+{
+	*this = obj;
+}
+
 Config::~Config(void)
 {}
 
+Config	&Config::operator=(const Config &obj)
+{
+	_fd = obj._fd;
+	_server = obj._server;
+	_directives = obj._directives;
+
+	return *this;
+}
 
 void	Config::readFd(std::string namefd)
 {

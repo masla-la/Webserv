@@ -2,11 +2,11 @@
 # define _REQUEST_HPP_
 
 # include "webserv.hpp"
-
 # include "Client.hpp"
 
 class	Request
 {
+
 	private:
 
 		std::string	_request;
@@ -22,15 +22,14 @@ class	Request
 		std::string							_full_body;
 		size_t								_len;
 
+		Request( void );
+	
 	public:
 
-		//Request( void );
 		Request( const char *req );
-		//Request( const Request & obj );//
+		Request( const Request & obj );
 		~Request( void );
-		//Request	&	operator=( const Request & 	obj );
-
-		//void			requestInit( const char *req );
+		Request	&	operator=( const Request & 	obj );
 
 		void		makeQuery( void );
 		void		makeGet( std::stringstream & strs );
@@ -48,6 +47,7 @@ class	Request
 		std::string		getBody( void );
 		std::string		getFullBody( void );
 		std::map<std::string, std::string>		getHeader( void );
+
 };
 
 #endif

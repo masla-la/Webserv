@@ -1,11 +1,10 @@
 #include "../inc/Request.hpp"
 
-//Request::Request(void)
-//{}
+Request::Request(void)
+{}
 
 Request::~Request(void)
-{
-}
+{}
 
 Request::Request(const char *req)
 {
@@ -20,7 +19,29 @@ Request::Request(const char *req)
 		makeGet(strs);
 	else if (_method == "POST")
 		makePost(strs);
-	//
+}
+
+Request::Request(const Request &obj)
+{
+	*this = obj;
+}
+
+Request	&Request::operator=(const Request &obj)
+{
+	_request = obj._request;
+	_method = obj._method;
+	_url = obj._url;
+	_protocol = obj._protocol;
+
+	_query = obj._query;
+
+	_header = obj._header;
+	_boundary = obj._boundary;
+	_body = obj._body;
+	_full_body = obj._full_body;
+	_len = obj._len;
+
+	return *this;
 }
 
 void	Request::makeQuery()
@@ -44,7 +65,6 @@ void	Request::makeGet(std::stringstream & strs)
 			{
 				if (line[line.size() - 1] == ' ')
 					line.resize(line.size() - 2);
-				//_header.inser()
 				_header[key] = token;
 			}
 			token.resize(token.size() - 2);
@@ -62,7 +82,6 @@ void	Request::makeGet(std::stringstream & strs)
 	{
 		if (line[line.size() - 1] == ' ')
 			line.resize(line.size() - 2);
-		//_header.insert
 		_header[key] = token;
 	}
 
@@ -103,9 +122,9 @@ void	Request::makePost(std::stringstream &strs)
 				if (!line.empty())
 					line.resize(line.size() - 2);
 				if (!line.empty())
-					_header[key] = token;//_header.insert(std::make_pair(key, line));
+					_header[key] = token;
 				else
-					_header[key] = token;//_header.insert(std::make_pair(key, token));
+					_header[key] = token;
 			}
 			size_t pos_header = pos;
 			while (pos < _len + pos_header && pos < _request.size())
