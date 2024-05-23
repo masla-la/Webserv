@@ -252,7 +252,6 @@ void	Server::setListing( std::string listing )
 		}
 	else
 		throw ListingError();
-	std::cout << _listing << "\n";
 }
 
 void	Server::setLocation(Location loc)

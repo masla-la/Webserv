@@ -2,10 +2,10 @@
 
 Location::Location(void)
 {
-	//_directives.push_back("root");
 	_directives.push_back("index");
 	_directives.push_back("allowed_methods");
 	_directives.push_back("dir_listing");
+	_directives.push_back("redir");
 }
 
 Location::Location(Location const &obj)
@@ -35,11 +35,6 @@ void	Location::setDir( std::string dir )
 {
 	_dir = dir;
 }
-
-/*void	Location::setRoot( std::string root )
-{
-	_root = root;
-}*/
 
 void	Location::setIndex( std::string index )
 {
@@ -79,11 +74,6 @@ std::string					Location::getDir( void )
 {
 	return _dir;
 }
-
-/*std::string					Location::getRoot( void )
-{
-	return _root;
-}*/
 
 std::string					Location::getIndex( void )
 {

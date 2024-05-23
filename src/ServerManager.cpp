@@ -208,7 +208,9 @@ void	ServerManager::handle_request()
 				else
 				{
 					//loc reddir
-					if (request.getMethod() == "GET")
+					if (location && !location->getRedir().empty())
+						redir(_client[i], location->getRedir());
+					else if (request.getMethod() == "GET")
 						metodGet(_client[i], url, location);
 					else if (request.getMethod() == "POST")
 						metodPost(_client[i], url, request);
@@ -587,6 +589,25 @@ void	ServerManager::listing(Client &client, std::string url, std::string path)
 	else if (i == 0)
 		sendError(400, client);
 }
+
+void	ServerManager::redir( Client & client, std::string redir )
+{
+	//---
+	std::cout << "Redirect to: " << redir << std::endl;
+	//---
+	std::string	msg = "HTTP/1.1 200 OK\n\n";
+	msg += "<head><meta http-equiv=\"refresh\" content = \"0;url=";
+	msg += redir;
+	msg += "\" /></head>";
+
+	int i;
+
+	if ((i = send(client.getSock(), msg.c_str(), msg.length(), 0)) < 0)
+		sendError(500, client);
+	else if (i == 0)
+		sendError(400, client);
+}
+
 
 //SETTERS
 void	ServerManager::setErrors()
