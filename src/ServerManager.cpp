@@ -212,10 +212,10 @@ void	ServerManager::handle_request()
 					//---
 					std::cout << "CGI" << std::endl;
 					//---
+					cgi_ex(url, query, _client[i], _server[_client[i].getServ()]);
 				}
 				else
 				{
-					//loc reddir
 					if (location && !location->getRedir().empty())
 						redir(_client[i], location->getRedir());
 					else if (request.getMethod() == "GET")
@@ -250,20 +250,18 @@ void	ServerManager::sendError(int error, Client & client)
 	int fd;
 
 	errorPages = _server[client.getServ()].getErrorPages();
-	if (errorPages.find(ft_size_to_str(error)) != errorPages.end())
+	if (!errorPages[ft_size_to_str(error)].empty() && errorPages[ft_size_to_str(error)].size() <= 0)
 	{
-		fd = open(errorPages[ft_size_to_str(error)].c_str(), O_RDONLY);
+		fd = open((_server[client.getServ()].getRoot() + '/' + errorPages[ft_size_to_str(error)]).c_str(), O_RDONLY);
 		if (fd < 0)
 		{
 			std::cout << "Error: Error pages failed -> " << error << std::endl;
-			if (error == 404)
-				send(client.getSock(), _default_error.c_str(), _default_error.length(), 0);
-			else
-				sendError(404, client);
+			errorPages.erase(errorPages.find(ft_size_to_str(error)));
+			sendError(error, client);
 			return;
 		}
 		close(fd);
-		sendPage(errorPages[ft_size_to_str(error)], client, 200);
+		sendPage(_server[client.getServ()].getRoot() + '/' + errorPages[ft_size_to_str(error)], client, 200);
 	}
 	else
 	{
@@ -635,6 +633,9 @@ void	ServerManager::setErrors()
 	_errors[411] = "411 Length Required";
 	_errors[413] = "413 Request Entity Too Large";
 	_errors[414] = "414 Request-URI Too Long";
+//---
+	_errors[418] = "418 I'm a teapot";
+//---
 	_errors[500] = "500 Internal Server Error";
 	_errors[502] = "502 Bad Gateway";
 	_errors[505] = "505 HTTP Version Not Supported";

@@ -193,7 +193,7 @@ void	Server::setRoot(std::string root, char **env)
 void	Server::setErrorPages(std::string error_pages)
 {
 	if (error_pages.empty())
-    return;
+	return;
 
 	std::stringstream strs(error_pages);
 	std::string num;

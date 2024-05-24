@@ -21,22 +21,22 @@ size_t	ft_stoi(std::string str)
 
 uint32_t to_uint32_t( const std::string & ip_address )
 {
-    const unsigned bits_per_term = 8 ;
-    const unsigned num_terms = 4 ;
+	const unsigned bits_per_term = 8 ;
+	const unsigned num_terms = 4 ;
 
-    std::istringstream ip(ip_address) ;
-    uint32_t packed = 0 ;
+	std::istringstream ip(ip_address) ;
+	uint32_t packed = 0 ;
 
-    for (unsigned i = 0 ;  i < num_terms; ++i)
-    {
-        unsigned term ;
-        ip >> term ;
-        ip.ignore() ;
+	for (unsigned i = 0 ;  i < num_terms; ++i)
+	{
+		unsigned term ;
+		ip >> term ;
+		ip.ignore() ;
 
-        packed += term << (bits_per_term * (num_terms - i - 1)) ;
-    }
+		packed += term << (bits_per_term * (num_terms - i - 1)) ;
+	}
 
-    return packed ;
+	return packed ;
 }
 
 void	ft_sig(int signal)
