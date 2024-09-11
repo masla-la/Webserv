@@ -7,7 +7,7 @@ bool	is_cgi(std::string url)
 	return true;
 }
 
-void	cgi_ex(std::string url, std::string query, Client &client, Server &server)
+std::string	cgi_ex(std::string url, std::string query, Client &client, Server &server)
 {
 	(void)client;
 	std::string fd = url;
@@ -24,20 +24,47 @@ void	cgi_ex(std::string url, std::string query, Client &client, Server &server)
 	//
 	av[0] = strdup("/usr/bin/python3");
 	av[1] = strdup(path.c_str());
+	query.erase(0, 1);
 	av[2] = strdup(query.c_str());
 	av[3] = NULL;
 	//
 
-	std::cout << "123\n";
+	std::string	req;
 	pid_t	pid;
+	int		pipefd[2];
+
+
+	std::cout << av[2];
+
+	pipe(pipefd);
+	std::string	line;
+
 	pid = fork();
 	if (pid == 0)
 	{
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[0]);
+		dup2(pipefd[0], STDIN_FILENO);
 		execve("/usr/bin/python3", av, NULL);
 		exit (1);
+	}
+	else
+	{
+		close(pipefd[1]);
+		//---GNL
+		char		*line = NULL;
+
+		while((line = get_next_line(pipefd[0])) != '\0')
+		{
+			req += line;
+			free(line);
+		}
+		//---
+		close(pipefd[0]);
 	}
 	waitpid(pid, 0, 0);
 	delete av[1];
 	delete av[2];
 	delete av[3];
+	return req;
 }

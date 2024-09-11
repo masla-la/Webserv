@@ -212,7 +212,11 @@ void	ServerManager::handle_request()
 					//---
 					std::cout << "CGI" << std::endl;
 					//---
-					cgi_ex(url, query, _client[i], _server[_client[i].getServ()]);
+					std::string	msg;
+					//revisar
+					msg = cgi_ex(url, query, _client[i], _server[_client[i].getServ()]);
+					if (msg.size() > 0)
+						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);
 				}
 				else
 				{
@@ -327,6 +331,8 @@ void	ServerManager::sendPage(std::string page, Client & client, int error)
 		msg += ft_size_to_str(size);//
 		msg += "\n\n";
 
+		std::cout << msg;
+
 		// Enviar los encabezados
 		size_t i;
 		if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0) {
@@ -342,11 +348,12 @@ void	ServerManager::sendPage(std::string page, Client & client, int error)
 			fd.read(buffer, bytes_to_read);
 			if (fd.eof() && fd.fail())
 			{
+				//gestionar error, si el envio funciona correctamente
 				sendError(500, client);
 				return;
 			}
 			size_t n;
-			if ((n = send(client.getSock(), buffer, fd.gcount(), 0)) <= 0)
+			if ((n = send(client.getSock(), buffer, fd.gcount(), MSG_NOSIGNAL)) <= 0)
 			{
 				sendError(500, client);
 				return;

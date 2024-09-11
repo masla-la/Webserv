@@ -62,6 +62,8 @@ int main(int ac, char **av, char **env)
 	}
 	manager.InitServer(conf.getServ());
 	signal(SIGINT, ft_sig);
+	//ignorar la sigpipe que cierra el servidor al enviar un archivo
+	signal(SIGPIPE, SIG_IGN);
 	while (1)
 	{
 		manager.acceptClient();

@@ -32,6 +32,10 @@
 # include <netinet/in.h>
 # include <sys/select.h>
 
+//Utils
+extern "C"
+	# include "../utils/Get_next_line/get_next_line.h"
+
 # include "conf/Config.hpp"
 class	Config;
 
@@ -55,8 +59,8 @@ class Client;
 class Server;
 
 
-bool	is_cgi(std::string url);
-void	cgi_ex(std::string url, std::string query, Client & client, Server & server);
+bool		is_cgi(std::string url);
+std::string	cgi_ex(std::string url, std::string query, Client & client, Server & server);
 ///
 
 //EXECPTIONS
