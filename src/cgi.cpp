@@ -33,11 +33,7 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 	pid_t	pid;
 	int		pipefd[2];
 
-
-	std::cout << av[2];
-
 	pipe(pipefd);
-	std::string	line;
 
 	pid = fork();
 	if (pid == 0)
