@@ -32,10 +32,6 @@
 # include <netinet/in.h>
 # include <sys/select.h>
 
-//Utils
-extern "C"
-	# include "../utils/Get_next_line/get_next_line.h"
-
 # include "conf/Config.hpp"
 class	Config;
 

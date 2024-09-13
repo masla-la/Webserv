@@ -47,13 +47,14 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 	else
 	{
 		close(pipefd[1]);
-		//---GNL
-		char		*line = NULL;
+		//---
+		char		buff[128];
+		ssize_t		i = 0;
 
-		while((line = get_next_line(pipefd[0])) != '\0')
+		while((i = read(pipefd[0], buff, sizeof(buff) - 1)) > 0)
 		{
-			req += line;
-			free(line);
+			buff[i] = '\0';
+			req += buff;
 		}
 		//---
 		close(pipefd[0]);
