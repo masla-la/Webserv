@@ -19,15 +19,15 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 	if (!access(path.c_str(), X_OK))
 		std::cout << "Error: access error" << std::endl;
 
-	char	*av[4];
+	//---
+	std::vector<const char*> av;
 
-	//
-	av[0] = strdup("/usr/bin/python3");
-	av[1] = strdup(path.c_str());
+	av.push_back("/usr/bin/python3");
+	av.push_back(path.c_str());
 	query.erase(0, 1);
-	av[2] = strdup(query.c_str());
-	av[3] = NULL;
-	//
+	av.push_back(query.c_str());
+	av.push_back(NULL);
+	//---
 
 	std::string	req;
 	pid_t	pid;
@@ -41,13 +41,14 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[0]);
 		dup2(pipefd[0], STDIN_FILENO);
-		execve("/usr/bin/python3", av, NULL);
+		execve("/usr/bin/python3", const_cast<char * const*>(av.data()), NULL);
 		exit (1);
 	}
 	else
 	{
 		close(pipefd[1]);
-		//---
+		waitpid(pid, 0, 0);
+
 		char		buff[128];
 		ssize_t		i = 0;
 
@@ -59,9 +60,5 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 		//---
 		close(pipefd[0]);
 	}
-	waitpid(pid, 0, 0);
-	delete av[1];
-	delete av[2];
-	delete av[3];
 	return req;
 }
