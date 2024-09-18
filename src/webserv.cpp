@@ -60,6 +60,7 @@ int main(int ac, char **av, char **env)
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
+	manager.setEnv();
 	manager.InitServer(conf.getServ());
 	signal(SIGINT, ft_sig);
 	//ignorar la sigpipe que cierra el servidor al enviar un archivo

@@ -212,11 +212,11 @@ void	ServerManager::handle_request()
 					//---
 					std::cout << "CGI" << std::endl;
 					//---
-					std::string	msg;
+					//std::string	msg;
 					//revisar
-					msg = cgi_ex(url, query, _client[i], _server[_client[i].getServ()]);
-					if (msg.size() > 0)
-						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);
+					cgi_ex(url, query, _client[i], _server[_client[i].getServ()]);
+					/*if (msg.size() > 0)
+						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);*/
 				}
 				else
 				{
@@ -648,6 +648,11 @@ void	ServerManager::setErrors()
 	_errors[505] = "505 HTTP Version Not Supported";
 }
 
+void	ServerManager::setEnv(char **env)
+{
+	_env = env;
+}
+
 //GETTERS
 std::string	ServerManager::getError(int n)
 {
@@ -656,4 +661,9 @@ std::string	ServerManager::getError(int n)
 	if (it != _errors.end())
 		return it->second;
 	return "";
+}
+
+char **	ServerManager::getEnv()
+{
+	return _env;
 }

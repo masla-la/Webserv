@@ -48,7 +48,7 @@ std::string	ft_size_to_str( size_t n );
 std::string	ft_size_to_str( int n );
 
 ///
-#include <string.h>
+//#include <string.h>
 #include "Server.hpp"
 #include "Client.hpp"
 class Client;
@@ -59,7 +59,7 @@ bool		is_cgi(std::string url);
 std::string	cgi_ex(std::string url, std::string query, Client & client, Server & server);
 ///
 
-//EXECPTIONS
+//EXECEPTIONS
 class ArgError : public std::exception
 	{ public:
 		virtual const char *what( void ) const throw()

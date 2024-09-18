@@ -24,6 +24,8 @@ class	ServerManager
 
 		struct timeval					_timeout;
 
+		char **							_env;
+
 	public:
 
 		ServerManager( void );
@@ -58,11 +60,15 @@ class	ServerManager
 		void	setServer();
 		void	setClient();
 		void	setErrors();
+		
+		void	setEnv(char **env);
 
 	//GETTERS
 		std::vector<Server>		getServer( void ){ return _server; };//
 		std::vector<Client>		getClient( void ){ return _client; };//
 		std::string				getError( int n );
+
+		char **					getEnv( void );
 
 };
 
