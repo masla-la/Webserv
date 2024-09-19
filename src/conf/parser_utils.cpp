@@ -5,7 +5,7 @@ bool	ft_envcmp(char *env, std::string line)
 	int i;
 
 	i = 0;
-	while (line[i] && env[i] == line[i + 1])
+	while (line[i] && env[i] == line[i])
 		i++;
 	if (env[i] == '=')
 		return true;

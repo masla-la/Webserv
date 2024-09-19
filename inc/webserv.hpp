@@ -56,7 +56,7 @@ class Server;
 
 
 bool		is_cgi(std::string url);
-std::string	cgi_ex(std::string url, std::string query, Client & client, Server & server);
+std::string	cgi_ex(std::string url, std::string query, Server & server, char **env);
 ///
 
 //EXECEPTIONS

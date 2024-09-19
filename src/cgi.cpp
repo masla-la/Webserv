@@ -14,9 +14,10 @@ std::string	check_script(std::string path)
 	tmp.erase(0, tmp.find_last_of('.') + 1);
 	if (tmp == "py")
 		return "/python3";
+	return NULL;
 }
 
-std::string	cgi_ex(std::string url, std::string query, Client &client, Server &server)
+std::string	cgi_ex(std::string url, std::string query, Server &server, char **env)
 {
 	//(void)client;
 	std::string fd = url;
@@ -28,12 +29,27 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 		std::cout << "Error: access error" << std::endl;
 
 
+	std::string	envPath;
+	std::string	type;
+
+	envPath = returnEnv(env, "PATH");
+	while (envPath.find(':') < envPath.size())
+		envPath.replace(envPath.find(':'), 1, " ");
+
+	std::stringstream	ss(envPath);
+
+	type = check_script(path);
+
+	std::string	pathTmp;
+
 	//check script
 	std::vector<const char*> av;
+	std::vector<const char*> ex;
 
-	check_script(path);
-
-	av.push_back("/usr/bin/python3");
+	while (ss >> pathTmp)
+		ex.push_back(pathTmp.c_str());
+	av.push_back(type.c_str());
+	//av.push_back("/usr/bin/python3");
 	av.push_back(path.c_str());
 	query.erase(0, 1);
 	av.push_back(query.c_str());
@@ -46,19 +62,20 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 	pipe(pipefd);
 
 	pid = fork();
-	if (pid == 0)
+	for (size_t i = 0; i < ex.size() && pid == 0; i++)
 	{
+		std::cout << ex[i] << "\n";
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[0]);
 		dup2(pipefd[0], STDIN_FILENO);
-		while ()
-			execve(av[0], const_cast<char * const*>(av.data()), NULL);
-		exit (1);
+		execve(ex[i], const_cast<char * const*>(av.data()), NULL);
+		//exit (1);
 	}
-	else
-	{
-		close(pipefd[1]);
-		waitpid(pid, 0, 0);
+	if (pid == 0)
+		exit (1);
+	close(pipefd[1]);
+		if (!waitpid(pid, 0, 0))
+			return NULL;
 
 		char		buff[128];
 		size_t		i = 0;
@@ -71,9 +88,5 @@ std::string	cgi_ex(std::string url, std::string query, Client &client, Server &s
 			req += buff;
 		}
 		close(pipefd[0]);
-	}
-
-	if (req.size() > 0)
-		send(client.getSock(), req.c_str(), req.size(), 0);
 	return req;
 }

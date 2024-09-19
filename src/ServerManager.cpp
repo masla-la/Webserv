@@ -212,11 +212,11 @@ void	ServerManager::handle_request()
 					//---
 					std::cout << "CGI" << std::endl;
 					//---
-					//std::string	msg;
+					std::string	msg;
 					//revisar
-					cgi_ex(url, query, _client[i], _server[_client[i].getServ()]);
-					/*if (msg.size() > 0)
-						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);*/
+					cgi_ex(url, query, _server[_client[i].getServ()], getEnv());
+					if (msg.size() > 0)
+						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);
 				}
 				else
 				{
