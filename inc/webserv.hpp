@@ -10,13 +10,9 @@
 //Containers
 # include <map>
 # include <vector>
-# include <iomanip>
 
 //System C
 # include <sys/wait.h>
-# include <sys/time.h>
-# include <unistd.h>
-# include <stdio.h>
 # include <stdlib.h>
 
 //Signal C

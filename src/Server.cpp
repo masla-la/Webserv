@@ -50,23 +50,23 @@ int	Server::setupServer(void)
 	
 	if (getSock() < 0)
 	{
-		perror("Error: socket failed");
+		std::cerr << "Error: socket failed" << std::endl;
 		return 1;
 	}
 	fcntl(getSock(), F_SETFL, O_NONBLOCK);
 	if (setsockopt(getSock(), SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
 	{
-		perror("Error: setsockopt  failed");
+		std::cerr << "Error: setsockopt  failed" << std::endl;
 		return 1;
 	}
 	if (bind(getSock(), (sockaddr *)&getAddr(), sizeof(getAddr())) < 0)
 	{
-		perror("Error: bind failed");
+		std::cerr << "Error: bind failed" << std::endl;
 		return 1;
 	}
 	if (listen(getSock(), 100) < 0)
 	{
-		perror("Error: listen failed");
+		std::cerr << "Error: listen failed" << std::endl;
 		return 1;
 	}
 	else

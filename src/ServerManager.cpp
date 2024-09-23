@@ -121,7 +121,7 @@ void	ServerManager::acceptClient()
 			_client.push_back(client);
 			if (client.getSock() < 0)
 			{
-				perror("Error: Accept failed");
+				std::cerr << "Error: Accept failed" << std::endl;
 				exit(1);
 			}
 			std::cout << "New connection" << std::endl;
