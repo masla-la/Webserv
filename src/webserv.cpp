@@ -2,7 +2,6 @@
 #include "../inc/ServerManager.hpp"
 #include "../inc/conf/Config.hpp"
 
-ServerManager	manager;
 bool			g_exit = false;
 
 size_t	ft_stoi(std::string str)
@@ -49,7 +48,7 @@ void	ft_sig(int signal)
 int main(int ac, char **av, char **env)
 {
 	Config			conf;
-	//ServerManager	manager;
+	ServerManager	manager;
 	
 	try
 	{
@@ -63,15 +62,12 @@ int main(int ac, char **av, char **env)
 	manager.setEnv(env);
 	manager.InitServer(conf.getServ());
 	signal(SIGINT, ft_sig);
-	//ignorar la sigpipe que cierra el servidor al enviar un archivo
 	signal(SIGPIPE, SIG_IGN);
-	while (1)
+	while (g_exit == false)
 	{
 		manager.acceptClient();
 		manager.waitClient();
 		manager.handle_request();
-		if (g_exit == true)
-			break ;
 	}
 	return 0;
 }

@@ -11,7 +11,7 @@ class Client
 		int				_socket;
 		size_t			_server_n;
 		std::string		_last_req;
-		size_t			_reqSize;
+		size_t			_req_size;
 
 		time_t	_time;
 
@@ -29,6 +29,8 @@ class Client
 		std::string	getLastReq( void );
 		int			getServ( void );
 		time_t		getTime( void );
+		size_t		getReqSize( void );
+
 	//SETTERS
 		void		setSock( int socket );
 		void		setLastReq( char *req );

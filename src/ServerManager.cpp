@@ -9,6 +9,7 @@ ServerManager::ServerManager(void): _last_fd(-1)
 	_default_error += "404 Not Found\n";
 	
 	_timeout.tv_sec	= 30;
+	_timeout.tv_usec = 0;
 
 	FD_ZERO(&_read_set);
 	FD_ZERO(&_write_set);
@@ -135,88 +136,57 @@ void	ServerManager::handle_request()
 		if (FD_ISSET(_client[i].getSock(), &_read_set))
 		{
 			_client[i].setTime(time(NULL));
-			char	req[MAX_REQUEST_SIZE + 1];//max request size != 1024
+			char	req[MAX_REQUEST_SIZE + 1];
 			size_t	reqSize = recv(_client[i].getSock(), req, MAX_REQUEST_SIZE, 0);
 
-			_client[i].setReqSize(reqSize);//
+			_client[i].setReqSize(reqSize);
 			_client[i].setLastReq(req);
 
 			if (reqSize < 0)
 			{
 				std::cout << "Error: Recv failed" << std::endl;
-				sendError(500, _client[i]);//
-				removeFromSet(_client[i].getSock(), &_read_set);
-				close(_client[i].getSock());
-				_client.erase(_client.begin() + i);
-				i--;
+				handle_request_error(500, _client[i], _read_set, i);
 			}
 			else if (reqSize == 0)
 			{
 				std::cout << "Connection is closed" << std::endl;
-				removeFromSet(_client[i].getSock(), &_read_set);
-				close(_client[i].getSock());
-				_client.erase(_client.begin() + i);
-				i--;
+				handle_request_error(0, _client[i], _read_set, i);
 			}
-			else//check request valid falta
+			else if (checkRequest(_client[i]))
 			{
 				std::cout << "New Request" << std::endl;
-				Request	request(_client[i].getLastReq().c_str());;
+				Request	request(_client[i].getLastReq().c_str());
 
 				int	ret = -1;
 				if ((ret = request.checkProt()) != -1)
-				{
-					sendError(ret, _client[i]);
-					removeFromSet(_client[i].getSock(), &_read_set);
-					close(_client[i].getSock());
-					_client.erase(_client.begin() + i);
-					i--;
-					continue;
-				}
+					handle_request_error(ret, _client[i], _read_set, i);
 
 				std::string	url = request.getUrl();
 				std::string query;
 				size_t		pos;
-				if ((pos = url.rfind("?")) != std::string::npos)//
+				if ((pos = url.rfind("?")) != std::string::npos)
 				{
 					query = url.substr(pos, url.size());
 					url = url.substr(0, pos);
 				}
 				if (request.getLen() != std::string::npos && request.getLen() > _server[_client[i].getServ()].getMaxBody())
-				{
-					sendError(413, _client[i]);
-					removeFromSet(_client[i].getSock(), &_read_set);
-					close(_client[i].getSock());
-					_client.erase(_client.begin() + i);
-					i--;
-					continue;
-				}
+					handle_request_error(413, _client[i], _read_set, i);
 
-				
-				//location
-				//cgi
 				Location	*location = _server[_client[i].getServ()].getLocation(url);
 
 				if (checkMethod(request.getMethod(), _server[_client[i].getServ()].getMethods()) && \
 				(location != NULL && checkMethod(request.getMethod(), location->getMethods())))
-				{
-					sendError(405, _client[i]);
-					removeFromSet(_client[i].getSock(), &_read_set);
-					close(_client[i].getSock());
-					_client.erase(_client.begin() + i);
-					i--;
-					continue;
-				}
+					handle_request_error(405, _client[i], _read_set, i);
 				else if (is_cgi(url))
 				{
-					//---
 					std::cout << "CGI" << std::endl;
-					//---
 					std::string	msg;
 					//revisar
-					cgi_ex(url, query, _server[_client[i].getServ()], getEnv());
-					if (msg.size() > 0)
+					msg = cgi_ex(url, query, _server[_client[i].getServ()], getEnv());
+					if (!msg.empty())
 						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);
+					//-----------
+
 				}
 				else
 				{
@@ -229,24 +199,23 @@ void	ServerManager::handle_request()
 					else if (request.getMethod() == "DELETE")
 						metodDelete(_client[i], url);
 				}
-				if (_client[i].getSock() <= 0)
-				{
-					removeFromSet(_client[i].getSock(), &_read_set);
-					_client.erase(_client.begin() + i);
-				}
-				/////
-				//http /1.1 mantiene  la conexion abierta a menos  que la request lo indique -> Connection: close
 				if (_client[i].getSock())
-				{
-					removeFromSet(_client[i].getSock(), &_read_set);
-					close(_client[i].getSock());
-					_client.erase(_client.begin() + i);
-					i--;
-				}
+					handle_request_error(0, _client[i], _read_set, i);
 			}
 		}
 	}
-}	
+}
+
+void	ServerManager::handle_request_error(int error_code, Client & client, fd_set & fd_set, int i)
+{
+	if (error_code > 0)
+		sendError(error_code, client);
+	removeFromSet(client.getSock(), &fd_set);
+	if (client.getSock())
+		close(client.getSock());
+	_client.erase(_client.begin() + i);
+	i--;
+}
 
 void	ServerManager::sendError(int error, Client & client)
 {
@@ -271,9 +240,7 @@ void	ServerManager::sendError(int error, Client & client)
 	{
 		if (!_errors[error].empty())
 		{
-			//---
 			std::cout << "Error Page: " << _errors[error] << std::endl;
-			//---
 			int i;
 			std::string msg = "HTTP/1.1 ";
 			msg += _errors[error] + "\n";
@@ -307,7 +274,6 @@ void	ServerManager::sendPage(std::string page, Client & client, int error)
 	}
 	else
 	{
-		// Sección para enviar el contenido de la página
 		std::ifstream fd(page.c_str());
 		if (!fd.is_open())
 		{
@@ -315,32 +281,26 @@ void	ServerManager::sendPage(std::string page, Client & client, int error)
 			return;
 		}
 
-		// Obtener el tamaño del archivo
 		fd.seekg(0, std::ios::end);
 		size_t size = fd.tellg();
 		fd.seekg(0, std::ios::beg);
 
 		std::string type = findType(page);
 
-		// Construir los encabezados de la respuesta HTTP
 		std::string msg = "HTTP/1.1 ";
 		msg += _errors[error];
 		msg += "\nContent-Type: ";
 		msg += type;
 		msg += "\nContent-Length: ";
-		msg += ft_size_to_str(size);//
+		msg += ft_size_to_str(size);
 		msg += "\n\n";
 
-		std::cout << msg;
-
-		// Enviar los encabezados
 		size_t i;
 		if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0) {
 			sendError(500, client);
 			return;
 		}
 
-		// Enviar el contenido del archivo
 		char buffer[1024];
 		while (size > 0)
 		{
@@ -348,7 +308,6 @@ void	ServerManager::sendPage(std::string page, Client & client, int error)
 			fd.read(buffer, bytes_to_read);
 			if (fd.eof() && fd.fail())
 			{
-				//gestionar error, si el envio funciona correctamente
 				sendError(500, client);
 				return;
 			}
@@ -414,6 +373,39 @@ std::string	ServerManager::findType(std::string page)
 
 //METHODS
 
+bool	ServerManager::checkRequest(Client & client)
+{
+	size_t		sizeBody = client.getReqSize() + client.getLastReq().find("\r\n\r\n") + 4;
+	std::string	request = client.getLastReq();
+
+	if (!request.find("\r\n\r\n"))
+		return false;
+	if (request.find("Transfer-Encoding: chunked") != std::string::npos)
+	{
+		if (!request.find("0\r\n\r\n"))
+			return false;
+		return true;
+	}
+	if(request.find("Content-Length") != std::string::npos)
+	{
+		std::string content = request;
+		content.erase(0, content.find("Content-Length") + 16);
+		if (!content.find("\r\n"))
+			return false;
+		content.erase(content.find("\r\n"), content.size());
+
+		if (ft_stoi(content) <= sizeBody)
+			return false;
+		if (request.find("boundary=") != std::string::npos)
+		{
+			if (request.find("--"))
+				return true;
+			return false;
+		}
+	}
+	return true;
+}
+
 bool	ServerManager::checkMethod(std::string method, std::vector<std::string> methods_list)
 {
 	for (size_t i = 0; i < methods_list.size(); i++)
@@ -433,9 +425,8 @@ bool	ServerManager::checkIndex(std::string path, std::string index)
 
 void	ServerManager::metodGet(Client &client, std::string url, Location *location)
 {
-	//---
 	std::cout << "Get Method\n";
-	//---
+
 	if (url.size() >= 64)
 	{
 		sendError(414, client);
@@ -475,14 +466,14 @@ void	ServerManager::metodGet(Client &client, std::string url, Location *location
 
 void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 {
-	//---
 	std::cout << "Post Method\n";
-	//---
+
 	if (request.getHeader()["Transfer-Encoding"] == "chunked")//
 	{
 		sendError(411, client);
 		return  ;
 	}
+
 	std::string	path = _server[client.getServ()].getRoot() + url;
 	struct stat	stat_path;
 	lstat(path.c_str(), &stat_path);
@@ -545,9 +536,8 @@ void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 
 void	ServerManager::metodDelete(Client &client, std::string url)
 {
-	//---
 	std::cout << "Delete Method\n";
-	//---
+
 	std::string	path = _server[client.getServ()].getRoot() + url;
 	std::ifstream	fd(path.c_str());
 	if (!fd)
@@ -564,9 +554,8 @@ void	ServerManager::metodDelete(Client &client, std::string url)
 
 void	ServerManager::listing(Client &client, std::string url, std::string path)
 {
-	//---
 	std::cout << "Directiry Listing\n";
-	//---
+
 	DIR				*dir;
 	struct dirent	*ent;
 	std::string		data;
@@ -605,9 +594,8 @@ void	ServerManager::listing(Client &client, std::string url, std::string path)
 
 void	ServerManager::redir( Client & client, std::string redir )
 {
-	//---
 	std::cout << "Redirect to: " << redir << std::endl;
-	//---
+
 	std::string	msg = "HTTP/1.1 200 OK\n\n";
 	msg += "<head><meta http-equiv=\"refresh\" content = \"0;url=";
 	msg += redir;
@@ -640,9 +628,9 @@ void	ServerManager::setErrors()
 	_errors[411] = "411 Length Required";
 	_errors[413] = "413 Request Entity Too Large";
 	_errors[414] = "414 Request-URI Too Long";
-//---
+
 	_errors[418] = "418 I'm a teapot";
-//---
+
 	_errors[500] = "500 Internal Server Error";
 	_errors[502] = "502 Bad Gateway";
 	_errors[505] = "505 HTTP Version Not Supported";

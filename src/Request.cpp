@@ -142,7 +142,7 @@ void	Request::makePost(std::stringstream &strs)
 			{
 				if (line[line.size() - 1] == ' ')
 					line.resize(line.size() - 2);
-				_header[key] = line;//_header.insert(std::make_pair(key, line));
+				_header[key] = line;
 			}
 			token.resize(token.size() - 2);
 			key = token;
@@ -157,8 +157,6 @@ void	Request::makePost(std::stringstream &strs)
 	}
 
 	std::cout << "Headers:" << std::endl;
-	//for (const auto& pair : _header)
-	//	std::cout << pair.first << ": " << pair.second << std::endl;
 }
 
 int		Request::checkProt()

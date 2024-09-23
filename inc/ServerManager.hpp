@@ -6,7 +6,6 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Request.hpp"
-//# include "Response.hpp"
 
 class	ServerManager
 {
@@ -42,18 +41,22 @@ class	ServerManager
 		void	acceptClient( void );
 		void	handle_request( void );
 
+		bool	checkRequest( Client & client );
 		bool	checkMethod( std::string method, std::vector<std::string> methods_list );
-		bool	checkIndex(std::string path, std::string index);
+		bool	checkIndex( std::string path, std::string index );
+		
 		void	metodGet( Client & client, std::string url, Location *location );
 		void	metodPost( Client & client, std::string url, Request & request );
 		void	metodDelete( Client & client, std::string url );
+
 		void	listing( Client & client, std::string url, std::string path );
 		void	redir( Client & client, std::string redir );
 
 	//Utils
+		void		handle_request_error( int error_code, Client & client, fd_set & fd_set, int i );
 		void		sendError( int error, Client & client );
 		void		sendPage( std::string page, Client & client, int code );
-		bool		writePost(std::string path, Client & client, std::string str);
+		bool		writePost( std::string path, Client & client, std::string str );
 		std::string	findType( std::string page );
 
 	//SETTERS
@@ -61,7 +64,7 @@ class	ServerManager
 		void	setClient();
 		void	setErrors();
 		
-		void	setEnv(char **env);
+		void	setEnv( char **env );
 
 	//GETTERS
 		std::vector<Server>		getServer( void ){ return _server; };//

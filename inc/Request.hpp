@@ -41,7 +41,7 @@ class	Request
 		std::string		getMethod( void );
 		std::string		getUrl( void );
 		std::string		getProtocol( void );
-		size_t	getLen( void );
+		size_t			getLen( void );
 
 		std::string		getBoundary( void );
 		std::string		getBody( void );

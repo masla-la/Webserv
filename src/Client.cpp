@@ -5,7 +5,7 @@ Client::Client(void)
 
 Client::Client(size_t n): _server_n(n)
 {
-	_reqSize = 0;
+	_req_size = 0;
 	_time = time(NULL);
 }
 
@@ -22,7 +22,7 @@ Client	&Client::operator=(Client const &obj)
 	_socket = obj._socket;
 	_server_n = obj._server_n;
 	_last_req = obj._last_req;
-	_reqSize = obj._reqSize;
+	_req_size = obj._req_size;
 
 	_time = obj._time;
 
@@ -50,6 +50,11 @@ time_t		Client::getTime(void)
 	return _time;
 }
 
+size_t		Client::getReqSize(void)
+{
+	return _req_size;
+}
+
 //SETTERS
 void		Client::setSock(int socket)
 {
@@ -64,7 +69,7 @@ void	Client::setLastReq(char *req)
 
 void		Client::setReqSize(size_t i)
 {
-	_reqSize = i;
+	_req_size = i;
 }
 
 void		Client::setTime(time_t time)
