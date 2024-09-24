@@ -39,7 +39,11 @@ class	ServerManager
 		void	selectFd( fd_set *read, fd_set *write );
 		void	waitClient( void );
 		void	acceptClient( void );
-		void	handle_request( void );
+
+		void		handle_request( void );
+		bool		client_request( Client & client );
+		std::string	readHttpRequest( int socket );
+		std::string	recvChuncked( int socket );
 
 		bool	checkRequest( Client & client );
 		bool	checkMethod( std::string method, std::vector<std::string> methods_list );

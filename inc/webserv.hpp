@@ -38,6 +38,7 @@ class	Client;
 # define MAX_REQUEST_SIZE 1024
 
 //Utills
+size_t		hex_to_dec( const std::string & hex );
 uint32_t	to_uint32_t( const std::string & ip_address );
 size_t		ft_stoi( std::string str );
 std::string	ft_size_to_str( size_t n );

@@ -129,19 +129,94 @@ void	ServerManager::acceptClient()
 	}
 }
 
+std::string	ServerManager::recvChuncked(int socket)
+{
+	std::string	request;
+	char		buff[MAX_REQUEST_SIZE + 1];
+
+	while (true)
+	{
+		std::string	chunckSizeStr;
+		char		c;
+		while (recv(socket, &c, 1, 0) != '\r')
+			chunckSizeStr += c;
+		recv(socket, &c, 1, 0);
+
+		size_t	chunckSize = hex_to_dec(chunckSizeStr);
+		if (chunckSize == 0)
+			break ;
+		size_t	bytesRecv = 0;
+		while (bytesRecv < chunckSize)
+		{
+			size_t	len = recv(socket, buff, chunckSize - bytesRecv, 0);
+			if (len <= 0)
+				return "";
+			request += buff;
+			bytesRecv += len;
+		}
+		recv(socket, &c, 2, 0);//??
+	}
+	return request;
+}
+
+std::string	ServerManager::readHttpRequest(int socket)
+{
+	char		buff[MAX_REQUEST_SIZE + 1];
+	std::string	request;
+	size_t		bytes;
+
+	while ((bytes = recv(socket, buff, MAX_REQUEST_SIZE, 0)) > 0)
+	{
+		request += buff;
+		if (request.find("\r\n\r\n") != std::string::npos)
+			return request;
+	}
+	return "";
+}
+
+bool	ServerManager::client_request(Client & client)
+{
+	client.setTime(time(NULL));
+
+	std::string	request = readHttpRequest(client.getSock());
+
+	if (request.find("Transfer-Encoding: chuncked") != std::string::npos)
+	{
+		std::cout << "Chuncked Request!" << std::endl;
+		std::string chunck = recvChuncked(client.getSock());
+		if (chunck.empty())
+			return false;
+		request += chunck;
+		client.setReqSize(request.size());
+		client.setLastReq(request);
+	}
+	else
+	{
+		std::cout << "New Request" << std::endl;
+		client.setReqSize(request.size());
+		client.setLastReq(request);
+	}
+	return true;
+}
+
 void	ServerManager::handle_request()
 {
 	for (size_t i = 0; i < _client.size(); i++)
 	{
 		if (FD_ISSET(_client[i].getSock(), &_read_set))
 		{
+			size_t	reqSize = -1;
+
+			if (client_request(_client[i]))
+				reqSize = _client[i].getReqSize();
+			/*//--
 			_client[i].setTime(time(NULL));
 			char	req[MAX_REQUEST_SIZE + 1];
 			size_t	reqSize = recv(_client[i].getSock(), req, MAX_REQUEST_SIZE, 0);
 
 			_client[i].setReqSize(reqSize);
 			_client[i].setLastReq(req);
-
+			//---*/
 			if (reqSize < 0)
 			{
 				std::cout << "Error: Recv failed" << std::endl;
@@ -154,7 +229,6 @@ void	ServerManager::handle_request()
 			}
 			else if (checkRequest(_client[i]))
 			{
-				std::cout << "New Request" << std::endl;
 				Request	request(_client[i].getLastReq().c_str());
 
 				int	ret = -1;
@@ -386,7 +460,7 @@ bool	ServerManager::checkRequest(Client & client)
 			return false;
 		return true;
 	}
-	if(request.find("Content-Length") != std::string::npos)
+	else if(request.find("Content-Length") != std::string::npos)
 	{
 		std::string content = request;
 		content.erase(0, content.find("Content-Length") + 16);
@@ -467,12 +541,6 @@ void	ServerManager::metodGet(Client &client, std::string url, Location *location
 void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 {
 	std::cout << "Post Method\n";
-
-	if (request.getHeader()["Transfer-Encoding"] == "chunked")//
-	{
-		sendError(411, client);
-		return  ;
-	}
 
 	std::string	path = _server[client.getServ()].getRoot() + url;
 	struct stat	stat_path;

@@ -61,9 +61,9 @@ void		Client::setSock(int socket)
 	_socket = socket;
 }
 
-void	Client::setLastReq(char *req)
+void	Client::setLastReq(std::string req)
 {
-	if (req)
+	if (!req.empty())
 		_last_req = req;
 }
 

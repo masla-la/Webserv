@@ -22,7 +22,7 @@ class Client
 		Client( size_t n );
 		Client( const Client & obj );
 		~Client( void );
-		Client	&operator=(Client const &obj);
+		Client	&operator=( Client const &obj );
 
 	//GETTERS
 		int			getSock( void );
@@ -33,7 +33,7 @@ class Client
 
 	//SETTERS
 		void		setSock( int socket );
-		void		setLastReq( char *req );
+		void		setLastReq( std::string req );
 		void		setReqSize( size_t i );
 		void		setTime( time_t time );
 
