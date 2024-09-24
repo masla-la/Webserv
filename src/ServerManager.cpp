@@ -209,14 +209,6 @@ void	ServerManager::handle_request()
 
 			if (client_request(_client[i]))
 				reqSize = _client[i].getReqSize();
-			/*//--
-			_client[i].setTime(time(NULL));
-			char	req[MAX_REQUEST_SIZE + 1];
-			size_t	reqSize = recv(_client[i].getSock(), req, MAX_REQUEST_SIZE, 0);
-
-			_client[i].setReqSize(reqSize);
-			_client[i].setLastReq(req);
-			//---*/
 			if (reqSize < 0)
 			{
 				std::cout << "Error: Recv failed" << std::endl;
