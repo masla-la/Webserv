@@ -237,7 +237,6 @@ void	ServerManager::handle_request()
 				}
 				if (request.getLen() != std::string::npos && request.getLen() > _server[_client[i].getServ()].getMaxBody())
 					handle_request_error(413, _client[i], _read_set, i);
-
 				Location	*location = _server[_client[i].getServ()].getLocation(url);
 
 				if (checkMethod(request.getMethod(), _server[_client[i].getServ()].getMethods()) && \
@@ -442,9 +441,10 @@ std::string	ServerManager::findType(std::string page)
 
 bool	ServerManager::checkRequest(Client & client)
 {
-	size_t		sizeBody = client.getReqSize() + client.getLastReq().find("\r\n\r\n") + 4;
+	size_t		sizeBody = client.getReqSize() - (client.getLastReq().find("\r\n\r\n") + 4);
 	std::string	request = client.getLastReq();
-
+	std::cout  << request <<'\n';
+	
 	if (!request.find("\r\n\r\n"))
 		return false;
 	if (request.find("Transfer-Encoding: chunked") != std::string::npos)
@@ -461,7 +461,7 @@ bool	ServerManager::checkRequest(Client & client)
 			return false;
 		content.erase(content.find("\r\n"), content.size());
 
-		if (ft_stoi(content) <= sizeBody)
+		if (ft_stoi(content) > sizeBody)
 			return false;
 		if (request.find("boundary=") != std::string::npos)
 		{

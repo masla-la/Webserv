@@ -69,5 +69,6 @@ int main(int ac, char **av, char **env)
 		manager.waitClient();
 		manager.handle_request();
 	}
+	//cerrar conexiones/ cnt-c
 	return 0;
 }
