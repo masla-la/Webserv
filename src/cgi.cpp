@@ -19,37 +19,33 @@ std::string	check_script(std::string path)
 
 std::string	cgi_ex(std::string url, std::string query, Server &server, char **env)
 {
-	//(void)client;
-	std::string fd = url;
-	std::string	tmp = query;
 	std::string	path = server.getRoot() + url;
+	std::string	envPath;
+	std::string	type;
 	path.erase(0, 2);
 
 	if (!access(path.c_str(), X_OK))
+	{
 		std::cout << "Error: access error" << std::endl;
-
-
-	std::string	envPath;
-	std::string	type;
+		return "";
+	}
 
 	envPath = returnEnv(env, "PATH");
 	while (envPath.find(':') < envPath.size())
 		envPath.replace(envPath.find(':'), 1, " ");
 
 	std::stringstream	ss(envPath);
-
-	type = check_script(path);
-
 	std::string	pathTmp;
-
-	//check script
 	std::vector<const char*> av;
-	std::vector<const char*> ex;
+	std::vector<std::string> ex;
+
+	if ((type = check_script(path)).empty())
+		return "";
 
 	while (ss >> pathTmp)
-		ex.push_back(pathTmp.c_str());
+		ex.push_back(pathTmp + type);
+
 	av.push_back(type.c_str());
-	//av.push_back("/usr/bin/python3");
 	av.push_back(path.c_str());
 	query.erase(0, 1);
 	av.push_back(query.c_str());
@@ -62,31 +58,34 @@ std::string	cgi_ex(std::string url, std::string query, Server &server, char **en
 	pipe(pipefd);
 
 	pid = fork();
-	for (size_t i = 0; i < ex.size() && pid == 0; i++)
-	{
-		std::cout << ex[i] << "\n";
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[0]);
-		dup2(pipefd[0], STDIN_FILENO);
-		execve(ex[i], const_cast<char * const*>(av.data()), NULL);
-		//exit (1);
-	}
 	if (pid == 0)
+	{
+		dup2(pipefd[1], STDOUT_FILENO);
+		dup2(pipefd[0], STDIN_FILENO);
+		close(pipefd[0]);
+		for (std::vector<std::string>::iterator it = ex.begin(); it != ex.end(); it++)
+
+			execve(const_cast<const char*>((*it).c_str()), const_cast<char * const*>(av.data()), NULL);
 		exit (1);
-	close(pipefd[1]);
-		if (!waitpid(pid, 0, 0))
-			return NULL;
-
-		char		buff[128];
-		size_t		i = 0;
-
-		while((i = read(pipefd[0], buff, sizeof(buff) - 1)) > 0)
+	}
+	else
+	{
+		close(pipefd[1]);
+		if (waitpid(pid, 0, 0))
 		{
-			buff[i] = '\0';
-			for(size_t n = i; n < sizeof(buff); n++)
-				buff[n] = '\0';
-			req += buff;
+
+			char		buff[128];
+			size_t		i = 0;
+
+			while((i = read(pipefd[0], buff, sizeof(buff) - 1)) > 0)
+			{
+				buff[i] = '\0';
+				for(size_t n = i; n < sizeof(buff); n++)
+					buff[n] = '\0';
+				req += buff;
+			}
 		}
 		close(pipefd[0]);
+	}
 	return req;
 }

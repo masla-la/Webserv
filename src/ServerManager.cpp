@@ -245,14 +245,15 @@ void	ServerManager::handle_request()
 					handle_request_error(405, _client[i], _read_set, i);
 				else if (is_cgi(url))
 				{
+					//---
 					std::cout << "CGI" << std::endl;
+					//---
 					std::string	msg;
 					//revisar
 					msg = cgi_ex(url, query, _server[_client[i].getServ()], getEnv());
-					if (!msg.empty())
-						send(_client[i].getSock(), msg.c_str(), msg.size(), 0);
-					//-----------
-
+					if (msg.empty())
+						sendError(404, _client[i]);
+					send(_client[i].getSock(), msg.c_str(), msg.size(), 0);//
 				}
 				else
 				{
