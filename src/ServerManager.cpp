@@ -401,7 +401,7 @@ bool	ServerManager::writePost(std::string path, Client &client, std::string str)
 	addToSet(fd, &_write_set);
 	selectFd(&_read_set, &_write_set);
 
-	if (write(fd, str.c_str(), str.length()))
+	if (!write(fd, str.c_str(), str.length()))
 	{
 		sendError(500, client);
 		close(fd);
@@ -585,7 +585,7 @@ void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 	}
 	else
 	{
-		std::cout << "POST IN FILE\n";//
+		std::cout << "POST IN FILE\n";
 		if (!writePost(path, client, request.getFullBody()))
 			return ;
 	}
@@ -609,7 +609,10 @@ void	ServerManager::metodDelete(Client &client, std::string url)
 	fd.close();
 	std::remove(path.c_str());
 
-	if (send(client.getSock(), "HTTP /1.1 200 OK\n", 18, 0) <= 0)
+	std::string	msg = "HTTP/1.1 200 OK\n";
+	msg += "Content-Length: 0\r\n\r\n";
+
+	if (send(client.getSock(), msg.c_str(), msg.size(), 0) <= 0)
 		sendError(500, client);
 }
 
