@@ -443,7 +443,6 @@ bool	ServerManager::checkRequest(Client & client)
 {
 	size_t		sizeBody = client.getReqSize() - (client.getLastReq().find("\r\n\r\n") + 4);
 	std::string	request = client.getLastReq();
-	std::cout  << request <<'\n';
 	
 	if (!request.find("\r\n\r\n"))
 		return false;
