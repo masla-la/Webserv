@@ -19,6 +19,7 @@ std::string	check_script(std::string path)
 
 std::string	cgi_ex(std::string url, std::string query, Server &server, char **env)
 {
+	//Modificar GET y POST
 	std::string	path = server.getRoot() + url;
 	std::string	envPath;
 	std::string	type;
@@ -64,7 +65,6 @@ std::string	cgi_ex(std::string url, std::string query, Server &server, char **en
 		dup2(pipefd[0], STDIN_FILENO);
 		close(pipefd[0]);
 		for (std::vector<std::string>::iterator it = ex.begin(); it != ex.end(); it++)
-
 			execve(const_cast<const char*>((*it).c_str()), const_cast<char * const*>(av.data()), NULL);
 		exit (1);
 	}
