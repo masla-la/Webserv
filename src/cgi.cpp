@@ -19,7 +19,6 @@ std::string	check_script(std::string path)
 
 std::string	cgi_ex(std::string url, std::string query, Server &server, char **env)
 {
-	//Modificar GET y POST
 	std::string	path = server.getRoot() + url;
 	std::string	envPath;
 	std::string	type;
