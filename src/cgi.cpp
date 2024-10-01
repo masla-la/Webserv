@@ -49,6 +49,8 @@ std::string	cgi_ex(std::string url, std::string query, Server &server, char **en
 	av.push_back(type.c_str());
 	av.push_back(path.c_str());
 	query.erase(0, 1);
+	if (query.empty())
+		return "";
 	av.push_back(query.c_str());
 	av.push_back(NULL);
 

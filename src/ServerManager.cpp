@@ -82,9 +82,9 @@ void	ServerManager::selectFd(fd_set *read, fd_set *write)
 		{
 			if (current_time - _client[n].getTime() == 30)
 			{
-				std::cout << "Select time out" << std::endl;//
+				std::cout << "Select time out" << std::endl;
 				removeFromSet(_client[n].getSock(), read);
-				close(_client[n].getSock());//
+				close(_client[n].getSock());
 				_client.erase(_client.begin() + n);
 			}
 		}
@@ -154,7 +154,7 @@ std::string	ServerManager::recvChuncked(int socket)
 			request += buff;
 			bytesRecv += len;
 		}
-		recv(socket, &c, 2, 0);//??
+		recv(socket, &c, 2, 0);
 	}
 	return request;
 }
@@ -248,11 +248,12 @@ void	ServerManager::handle_request()
 					std::cout << "CGI" << std::endl;
 					//---
 					std::string	msg;
-					//revisar
+					if (request.getMethod() == "POST")
+						query = request.getBody();
 					msg = cgi_ex(url, query, _server[_client[i].getServ()], getEnv());
 					if (msg.empty())
 						sendError(404, _client[i]);
-					send(_client[i].getSock(), msg.c_str(), msg.size(), 0);//
+					send(_client[i].getSock(), msg.c_str(), msg.size(), 0);
 				}
 				else
 				{
@@ -315,7 +316,8 @@ void	ServerManager::sendError(int error, Client & client)
 			msg += ft_size_to_str(_errors[error].length() + 1);
 			msg += "\n\n";
 			msg += _errors[error] + "\n";
-			i = send(client.getSock(), msg.c_str(), msg.length(), 0); //
+
+			i = send(client.getSock(), msg.c_str(), msg.length(), 0);
 			if (i < 0)
 				std::cout << "Client disconnected" << std::endl;
 			else if (i == 0)
@@ -578,7 +580,7 @@ void	ServerManager::metodPost(Client &client, std::string url, Request &request)
 		}
 		else
 		{
-			sendError(400, client);//
+			sendError(400, client);
 			return ;
 		}
 	}
