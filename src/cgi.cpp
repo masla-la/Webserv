@@ -1,12 +1,5 @@
 #include "../inc/webserv.hpp"
 
-bool	is_cgi(std::string url)
-{
-	if (url.find("/cgi-bin/"))
-			return false;
-	return true;
-}
-
 std::string	check_script(std::string path)
 {
 	std::string	tmp = path;
@@ -14,7 +7,7 @@ std::string	check_script(std::string path)
 	tmp.erase(0, tmp.find_last_of('.') + 1);
 	if (tmp == "py")
 		return "/python3";
-	return NULL;
+	return "";
 }
 
 std::string	cgi_ex(std::string url, std::string query, Server &server, char **env)
@@ -47,9 +40,9 @@ std::string	cgi_ex(std::string url, std::string query, Server &server, char **en
 
 	av.push_back(type.c_str());
 	av.push_back(path.c_str());
-	query.erase(0, 1);
 	if (query.empty())
 		return "";
+	query.erase(0, 1);
 	av.push_back(query.c_str());
 	av.push_back(NULL);
 

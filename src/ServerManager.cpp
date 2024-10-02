@@ -237,12 +237,13 @@ void	ServerManager::handle_request()
 				}
 				if (request.getLen() != std::string::npos && request.getLen() > _server[_client[i].getServ()].getMaxBody())
 					handle_request_error(413, _client[i], _read_set, i);
+
 				Location	*location = _server[_client[i].getServ()].getLocation(url);
 
-				if (checkMethod(request.getMethod(), _server[_client[i].getServ()].getMethods()) && \
-				(location != NULL && checkMethod(request.getMethod(), location->getMethods())))
+				if (!checkMethod(request.getMethod(), _server[_client[i].getServ()].getMethods()) && \
+				(location && !checkMethod(request.getMethod(), location->getMethods())))
 					handle_request_error(405, _client[i], _read_set, i);
-				else if (is_cgi(url))
+				else if (location && location->getCGI() == 0)
 				{
 					//---
 					std::cout << "CGI" << std::endl;
@@ -266,7 +267,7 @@ void	ServerManager::handle_request()
 					else if (request.getMethod() == "DELETE")
 						metodDelete(_client[i], url);
 				}
-				if (_client[i].getSock())
+				if (_client[i].getSock() && !_client.empty())
 					handle_request_error(0, _client[i], _read_set, i);
 			}
 		}

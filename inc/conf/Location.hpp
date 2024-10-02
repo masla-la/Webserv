@@ -14,6 +14,7 @@ class	Location
 		std::string					_redir;
 		bool						_listing;
 		std::vector<std::string>	_methods;
+		bool						_cgi;
 
 	public:
 
@@ -30,6 +31,7 @@ class	Location
 		void	setRedir( std::string redir );
 		void	setListing( std::string listing );
 		void	setMethods( std::string method );
+		void	setCGI( std::string cgi );
 
 	//GETTERS
 		std::string					getDir( void );
@@ -37,7 +39,8 @@ class	Location
 		std::vector<std::string>	getDirectives( void );
 		std::string					getRedir( void );
 		bool						getListing( void );
-		std::vector<std::string>	getMethods( void );		
+		std::vector<std::string>	getMethods( void );
+		bool						getCGI( void );
 
 };
 

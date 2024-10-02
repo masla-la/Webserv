@@ -139,10 +139,9 @@ std::vector<Location>	Server::getLocation(void)
 
 Location	*Server::getLocation(std::string url)
 {
-
 	for (size_t i = 0; i < _location.size(); i++)
 	{
-		if (url == _location[i].getDir())
+		if (url.find(_location[i].getDir()) == 0)
 			return &_location[i];
 	}
 	return NULL;

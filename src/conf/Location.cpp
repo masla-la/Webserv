@@ -6,6 +6,7 @@ Location::Location(void)
 	_directives.push_back("allowed_methods");
 	_directives.push_back("dir_listing");
 	_directives.push_back("redir");
+	_directives.push_back("cgi");
 }
 
 Location::Location(Location const &obj)
@@ -67,6 +68,16 @@ void	Location::setMethods( std::string method )
 	_methods.push_back(method);
 }
 
+void	Location::setCGI( std::string cgi )
+{
+	if (!cgi.empty() && cgi == "on")
+	{
+		if (cgi == "on")
+			_cgi = true;
+	}
+	else
+		_cgi = false;
+}
 
 //GETTERS
 std::string					Location::getDir( void )
@@ -97,4 +108,9 @@ bool						Location::getListing( void )
 std::vector<std::string>	Location::getMethods( void )
 {
 	return _methods;
+}
+
+bool						Location::getCGI( void )
+{
+	return _cgi;
 }

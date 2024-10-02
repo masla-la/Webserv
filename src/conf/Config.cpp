@@ -156,7 +156,10 @@ size_t	Config::parseLocation(size_t n, std::string dir, Server &server)
 			throw ConfError();
 		line.erase(_fd[n].find(' '), conf.size() - _fd[n].find(' '));
 		if (line == "location")
+		{
+			server.setLocation(loc);
 			return n - 1;
+		}
 		if (!isdirective(line, direct))
 			throw BadConfig();
 		conf.erase(0, _fd[n].find(' ') + 1);
@@ -182,7 +185,11 @@ size_t	Config::parseLocation(size_t n, std::string dir, Server &server)
 					case 3:
 						loc.setRedir(conf);
 						break ;
-						
+
+					case 5:
+						loc.setCGI(conf);
+						break ;
+
 					default:
 						break ;
 				}
