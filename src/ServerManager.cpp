@@ -129,7 +129,7 @@ void	ServerManager::acceptClient()
 	}
 }
 
-std::string	ServerManager::recvChuncked(int socket)
+/*std::string	ServerManager::recvChuncked(int socket)
 {
 	std::string	request;
 	char		buff[MAX_REQUEST_SIZE + 1];
@@ -139,11 +139,14 @@ std::string	ServerManager::recvChuncked(int socket)
 		std::string	chunckSizeStr;
 		char		c;
 		while (recv(socket, &c, 1, 0) != '\r')
+		{
+			std::cout << "123\n";
 			chunckSizeStr += c;
+		}
 		recv(socket, &c, 1, 0);
 
 		size_t	chunckSize = hex_to_dec(chunckSizeStr);
-		if (chunckSize == 0)
+;		if (chunckSize == 0)
 			break ;
 		size_t	bytesRecv = 0;
 		while (bytesRecv < chunckSize)
@@ -157,7 +160,7 @@ std::string	ServerManager::recvChuncked(int socket)
 		recv(socket, &c, 2, 0);
 	}
 	return request;
-}
+}*/
 
 std::string	ServerManager::readHttpRequest(int socket)
 {
@@ -180,22 +183,22 @@ bool	ServerManager::client_request(Client & client)
 
 	std::string	request = readHttpRequest(client.getSock());
 
-	if (request.find("Transfer-Encoding: chuncked") != std::string::npos)
+	/*if (request.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
-		std::cout << "Chuncked Request!" << std::endl;
+		std::cout << "Chunked Request!" << std::endl;
 		std::string chunck = recvChuncked(client.getSock());
 		if (chunck.empty())
 			return false;
 		request += chunck;
 		client.setReqSize(request.size());
 		client.setLastReq(request);
-	}
-	else
-	{
+	}*/
+	//else
+	//{
 		std::cout << "New Request" << std::endl;
 		client.setReqSize(request.size());
 		client.setLastReq(request);
-	}
+	//}
 	return true;
 }
 
@@ -327,6 +330,73 @@ void	ServerManager::sendError(int error, Client & client)
 	}
 }
 
+void	ServerManager::sendChuncked(std::string page, Client & client, int error)
+{
+	std::cout << "Show Chuncked Page: " << page << std::endl;
+
+	std::ifstream	fd(page.c_str());
+	if (!fd.is_open())
+	{
+		sendError(404, client);
+		return;
+	}
+
+	std::string type = findType(page);
+	std::string header = "HTTP/1.1 ";
+	header += _errors[error];
+	header += "\r\nContent-Type: ";
+	header += type;
+	header += "\r\nTransfer-Encoding: chunked";
+	header += "\r\n\r\n";
+
+	size_t i;
+	if ((i = send(client.getSock(), header.c_str(), header.size(), 0)) <= 0)
+	{
+		sendError(500, client);
+		fd.close();
+		return;
+	}
+
+	char	buff[1024];
+
+	while(!fd.eof())
+	{
+		fd.read(buff, sizeof(buff));
+
+		size_t	size = fd.gcount();
+		if (size > 0)
+		{
+		std::stringstream	ss;
+		ss << std::hex << size;
+		std::string msg = ss.str() + "\r\n";
+
+		if ((i = send(client.getSock(), msg.c_str(), msg.size(), 0)) <= 0)
+		{
+			sendError(500, client);
+			fd.close();
+			return;
+		}
+		if ((i = send(client.getSock(), buff, size, 0)) <= 0)
+		{
+			sendError(500, client);
+			fd.close();
+			return;
+		}
+		if ((i = send(client.getSock(), "\r\n", 2, 0)) <= 0)
+		{
+			sendError(500, client);
+			return;
+		}
+		}
+	}
+	if ((i = send(client.getSock(), "0\r\n\r\n", 5, 0)) <= 0)
+	{
+		sendError(500, client);
+		return;
+	}
+	fd.close();
+}	
+
 void	ServerManager::sendPage(std::string page, Client & client, int error)
 {
 	std::cout << "Show Page: " << page << std::endl;
@@ -343,7 +413,13 @@ void	ServerManager::sendPage(std::string page, Client & client, int error)
 	}
 	else
 	{
+		if (client.getLastReq().find("Transfer-Encoding: chunked") != std::string::npos)
+		{
+			sendChuncked(page, client, error);
+			return ;
+		}
 		std::ifstream fd(page.c_str());
+	
 		if (!fd.is_open())
 		{
 			sendError(404, client);

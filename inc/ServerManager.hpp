@@ -43,7 +43,7 @@ class	ServerManager
 		void		handle_request( void );
 		bool		client_request( Client & client );
 		std::string	readHttpRequest( int socket );
-		std::string	recvChuncked( int socket );
+		//std::string	recvChuncked( int socket );
 
 		bool	checkRequest( Client & client );
 		bool	checkMethod( std::string method, std::vector<std::string> methods_list );
@@ -59,6 +59,7 @@ class	ServerManager
 	//Utils
 		void		handle_request_error( int error_code, Client & client, fd_set & fd_set, int i );
 		void		sendError( int error, Client & client );
+		void		sendChuncked( std::string, Client & client, int error );
 		void		sendPage( std::string page, Client & client, int code );
 		bool		writePost( std::string path, Client & client, std::string str );
 		std::string	findType( std::string page );
