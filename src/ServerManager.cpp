@@ -129,39 +129,6 @@ void	ServerManager::acceptClient()
 	}
 }
 
-/*std::string	ServerManager::recvChuncked(int socket)
-{
-	std::string	request;
-	char		buff[MAX_REQUEST_SIZE + 1];
-
-	while (true)
-	{
-		std::string	chunckSizeStr;
-		char		c;
-		while (recv(socket, &c, 1, 0) != '\r')
-		{
-			std::cout << "123\n";
-			chunckSizeStr += c;
-		}
-		recv(socket, &c, 1, 0);
-
-		size_t	chunckSize = hex_to_dec(chunckSizeStr);
-;		if (chunckSize == 0)
-			break ;
-		size_t	bytesRecv = 0;
-		while (bytesRecv < chunckSize)
-		{
-			size_t	len = recv(socket, buff, chunckSize - bytesRecv, 0);
-			if (len <= 0)
-				return "";
-			request += buff;
-			bytesRecv += len;
-		}
-		recv(socket, &c, 2, 0);
-	}
-	return request;
-}*/
-
 std::string	ServerManager::readHttpRequest(int socket)
 {
 	char		buff[MAX_REQUEST_SIZE + 1];
@@ -183,22 +150,9 @@ bool	ServerManager::client_request(Client & client)
 
 	std::string	request = readHttpRequest(client.getSock());
 
-	/*if (request.find("Transfer-Encoding: chunked") != std::string::npos)
-	{
-		std::cout << "Chunked Request!" << std::endl;
-		std::string chunck = recvChuncked(client.getSock());
-		if (chunck.empty())
-			return false;
-		request += chunck;
-		client.setReqSize(request.size());
-		client.setLastReq(request);
-	}*/
-	//else
-	//{
-		std::cout << "New Request" << std::endl;
-		client.setReqSize(request.size());
-		client.setLastReq(request);
-	//}
+	std::cout << "New Request" << std::endl;
+	client.setReqSize(request.size());
+	client.setLastReq(request);
 	return true;
 }
 
