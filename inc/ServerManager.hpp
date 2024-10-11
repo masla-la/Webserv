@@ -42,7 +42,7 @@ class	ServerManager
 
 		void		handle_request( void );
 		bool		client_request( Client & client );
-		std::string	readHttpRequest( int socket );
+		std::string	readHttpRequest( int socket, Server &  server );
 
 		bool	checkRequest( Client & client );
 		bool	checkMethod( std::string method, std::vector<std::string> methods_list );
@@ -70,8 +70,8 @@ class	ServerManager
 		void	setEnv( char **env );
 
 	//GETTERS
-		std::vector<Server>		getServer( void ){ return _server; };//
-		std::vector<Client>		getClient( void ){ return _client; };//
+		std::vector<Server>		getServer( void ){ return _server; };
+		std::vector<Client>		getClient( void ){ return _client; };
 		std::string				getError( int n );
 		char **					getEnv( void );
 

@@ -12,7 +12,7 @@ size_t	ft_stoi(std::string str)
 	while (++i < str.size())
 	{
 		if (str[i] < '0' || str[i] > '9')
-			throw "Number error{ ft_stoi }";
+			throw StringToIntError();
 		dest = dest * 10 + (str[i] - '0');
 	}
 	return  dest;
@@ -69,6 +69,5 @@ int main(int ac, char **av, char **env)
 		manager.waitClient();
 		manager.handle_request();
 	}
-	//cerrar conexiones/ cnt-c
 	return 0;
 }

@@ -129,13 +129,13 @@ void	ServerManager::acceptClient()
 	}
 }
 
-std::string	ServerManager::readHttpRequest(int socket)
+std::string	ServerManager::readHttpRequest(int socket, Server & server)
 {
 	char		buff[MAX_REQUEST_SIZE + 1];
 	std::string	request;
 	size_t		bytes;
 
-	while ((bytes = recv(socket, buff, MAX_REQUEST_SIZE, 0)) > 0)
+	while ((bytes = recv(socket, buff, server.getMaxBody(), 0)) > 0)
 	{
 		request += buff;
 		if (request.find("\r\n\r\n") != std::string::npos)
@@ -148,7 +148,7 @@ bool	ServerManager::client_request(Client & client)
 {
 	client.setTime(time(NULL));
 
-	std::string	request = readHttpRequest(client.getSock());
+	std::string	request = readHttpRequest(client.getSock(), _server[client.getServ()]);
 
 	std::cout << "New Request" << std::endl;
 	client.setReqSize(request.size());

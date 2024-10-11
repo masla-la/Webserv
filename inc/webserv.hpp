@@ -69,4 +69,9 @@ class ListingError : public std::exception
 		virtual const char *what( void ) const throw()
 	{ return "Error: Unknown dir_listing"; } };
 
+class StringToIntError : public std::exception
+	{ public:
+		virtual const char *what( void ) const throw()
+	{ return "Number error{ ft_stoi }"; } };
+
 #endif
